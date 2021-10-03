@@ -15,107 +15,6 @@ class SST2Config(BaseConfig):
     remove_columns = ['sentence', 'idx']
     label_mappings = [('terrible', 'great')]
 
-# @register_task('sst2')
-# class SST2Config(BaseConfig):
-#     task = 'sst2'
-#     task_type = 'classification'
-#     dataset_name = 'sst'
-#     metrics = 'accuracy'
-#     templates = [
-#         'sentence|It was |<mask>|.',
-#         'sentence|This is |<mask>|.',
-#         'sentence|A |<mask>| film.',
-#         'It was |<mask>|.|sentence',
-#         'This is |<mask>|.|sentence',
-#         'A |<mask>| film.|sentence',
-#     ]
-#     labels = [0, 1]
-#     remove_columns = ['sentence', 'tokens', 'tree']
-#     label_mappings = [('unnecessary', 'inspiring'),
-#                     ('ridiculous', 'flawless'),
-#                     ('embarrassing', 'marvelous'),
-#                     ('stupid', 'timely'),
-#                     ('nothing', 'successful'),
-#                     ('dreadful', 'exquisite'),
-#                     ('pointless', 'fabulous'),
-#                     ('horrible', 'incredible'),
-#                     ('worse', 'memorable'),
-#                     ('awkward', 'inspiring'),
-#                     ('obvious', 'timely'),
-#                     ('disgusting', 'thrilling'),
-#                     ('dreadful', 'marvelous'),
-#                     ('weird', 'exciting'),
-#                     ('disgusting', 'marvelous'),
-#                     ('awkward', 'spectacular'),
-#                     ('disastrous', 'exceptional'),
-#                     ('bizarre', 'sublime'),
-#                     ('boring', 'remarkable'),
-#                     ('horrible', 'epic'),
-#                     ('ugly', 'timely'),
-#                     ('disgusting', 'irresistible'),
-#                     ('ridiculous', 'exquisite'),
-#                     ('pointless', 'astonishing'),
-#                     ('unnecessary', 'sublime'),
-#                     ('stupid', 'fabulous'),
-#                     ('worse', 'superb'),
-#                     ('annoying', 'exquisite'),
-#                     ('abandoned', 'exquisite'),
-#                     ('obvious', 'profound'),
-#                     ('worse', 'charming'),
-#                     ('frustrating', 'irresistible'),
-#                     ('ridiculous', 'gorgeous'),
-#                     ('awkward', 'magical'),
-#                     ('horrible', 'spectacular'),
-#                     ('embarrassing', 'irresistible'),
-#                     ('boring', 'perfection'),
-#                     ('weird', 'inspiring'),
-#                     ('sad', 'inspiring'),
-#                     ('ridiculous', 'thrilling'),
-#                     ('pathetic', 'fabulous'),
-#                     ('horrible', 'delicious'),
-#                     ('unnecessary', 'magical'),
-#                     ('pointless', 'spectacular'),
-#                     ('pointless', 'exceptional'),
-#                     ('ugly', 'profound'),
-#                     ('embarrassing', 'delightful'),
-#                     ('obvious', 'inspiring'),
-#                     ('embarrassing', 'exquisite'),
-#                     ('embarrassing', 'flawless'),
-#                     ('ridiculous', 'magnificent'),
-#                     ('ridiculous', 'delightful'),
-#                     ('boring', 'fabulous'),
-#                     ('disgusting', 'exquisite'),
-#                     ('worse', 'extraordinary')]
-
-
-@register_task('mnli')
-class MNLIConfig(BaseConfig):
-    task = 'mnli'
-    task_type = 'classification'
-    dataset_name = 'multi_nli'
-    metrics = 'accuracy'
-    templates = [
-        'sentence|It was |<mask>|.',
-        'sentence|This is |<mask>|.',
-        'sentence|A |<mask>| film.',
-        'It was |<mask>|.|sentence',
-        'This is |<mask>|.|sentence',
-        'A |<mask>| film.|sentence',
-    ]
-    labels = [0, 1]
-    remove_columns = ['sentence', 'tokens', 'tree']
-    label_mappings = [('Still', 'Basically', 'And'),
-                     ('Otherwise', 'Then', 'Plus'),
-                     ('Personally', 'Exactly', 'Probably'),
-                     ('Next', 'Exactly', 'indeed'),
-                     ('no', 'yes', 'Nonetheless'),
-                     ('Nah', 'Literally', 'Why'),
-                     ('well', 'Seriously', 'Fortunately'),
-                     ('But', 'Yeah', 'Clearly'),
-                     ('Instead', 'Specifically', 'Therefore'),
-                     ('Meanwhile', 'Right', 'Probably'),]
-
-
 
 @register_task('snli')
 class SNLIConfig(BaseConfig):
@@ -125,22 +24,31 @@ class SNLIConfig(BaseConfig):
     test_subset = 'validation'
     metrics = 'accuracy'
     templates = [
-        'premise|.|<mask>|,|hypothesis|.|',
-        'premise|!|<mask>|,|hypothesis|.|',
-        'premise|.|<mask>|I think,|hypothesis|.|',
-        'premise|.|I think|<mask>|,|hypothesis|.|',
-        'premise|in the background. |<mask>|,|I think,|hypothesis|.|',
+        'premise|?|<mask>|,|hypothesis|.|',
     ]
     labels = [2, 0, 1]
     remove_columns = ['premise', 'hypothesis']
-    label_mappings = [('Instead', 'Indeed', 'Seriously'),
-                     ('Normally', 'YES', 'This'),
-                     ('Meanwhile', 'Right', 'Specifically'),
-                     ('Unless', 'Regardless', 'Fortunately'),
-                     ('Otherwise', 'Ok', 'Specifically'),
-                     ('Except', 'Alright', 'Watch'),
-                     ('Plus', 'Sometimes', 'Hopefully'),]
+    label_mappings = [('No', 'Yes', 'Maybe'),]
     remove_punc = True
+
+
+@register_task('mnli')
+class MNLIConfig(BaseConfig):
+    task = 'mnli'
+    task_type = 'classification'
+    test_subset = 'validation_matched'
+    dataset_name = ['glue', 'mnli']
+    metrics = 'accuracy'
+    templates = [
+        'premise|?|<mask>|,|hypothesis|.|',
+    ]
+    labels = [2, 0, 1]
+    remove_columns = ['premise', 'hypothesis', 'idx']
+    label_mappings = [('No', 'Yes', 'Maybe'),]
+    # TODO: should design a feature to only delete punc for certain columns
+    remove_punc = True
+
+
 
 
 @register_task('qnli')

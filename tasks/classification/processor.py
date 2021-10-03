@@ -55,6 +55,8 @@ class ProcessorForClassification(BaseProcessor):
                     # for raw inputs
                 elif example.get(item) and isinstance(example[item], str):
                     tmp = example[item].strip()
+                    if text and text.strip()[-1] not in '.?!':
+                        tmp = tmp.lower()
                     if tmp[-1] in '.,?!':
                         text += tmp[: -1].strip()
                         if not remove_punc:
