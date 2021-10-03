@@ -2,15 +2,15 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader
 from .. import BaseEvaluator, register_evaluator
-from transformers import AutoTokenizer, AutoModelForMaskedLM, AutoModelForPreTraining, AutoModelForCausalLM
+from transformers import AutoTokenizer, AutoModelForPreTraining, AutoModelForCausalLM, AutoModelForSeq2SeqLM
 from sklearn.metrics import accuracy_score
 import pdb
 from torch.nn.functional import cross_entropy
 import logging
 BERT_MODELS = ['bert-base-uncased', 'roberta-base', 'bert-large-uncased', 'roberta-large', 'distilroberta-base',
                'distilbert-base-uncased']
-GPT_MODELS = ['openai-gpt', 'gpt2', 'facebook/bart-base', 'google/bert_for_seq_generation_L-24_bbc_encoder']
-
+GPT_MODELS = ['openai-gpt', 'gpt2']
+BART_MODELS = ['facebook/bart-base', 'google/bert_for_seq_generation_L-24_bbc_encoder']
 
 def collate_fn(batch):
     keys = batch[0].keys()
@@ -108,3 +108,42 @@ class GPTEvaluatorForClassification(BaseEvaluator):
 
 
 
+@register_evaluator('classification', BART_MODELS)
+class BARTEvaluatorForClassification(BaseEvaluator):
+
+    def build_model(self, arch):
+        return AutoModelForSeq2SeqLM.from_pretrained(arch).to(self.device)
+
+    def eval(self, dataset, **kwargs):
+        candidate_idx = kwargs.get('candidate_idx').to(self.device)
+        candidate_labels = kwargs.get('candidate_labels')
+        mask_length = candidate_idx.shape[-1]
+        test_dataloader = DataLoader(dataset, batch_size=8, collate_fn=collate_fn)
+        self.model.eval()
+        predictions = []
+        labels = []
+
+        def decode(outputs, mask_pos, candidate_idx, mask_length):
+            """Calculate the predicted probability of answers in the masked position"""
+            if hasattr(outputs, 'logits'):
+                logits = outputs.logits
+            elif hasattr(outputs, 'prediction_logits'):
+                logits = outputs.prediction_logits
+            else:
+                raise NotImplementedError
+            mask_logits = logits[mask_pos > 0].view(-1, mask_length, logits.shape[-1])
+            candidate_logits = torch.stack(
+                [mask_logits[:, i, :].index_select(-1, candidate_idx[:, i]) for i in range(mask_length)], axis=-1)
+            candidate_logits = torch.nn.functional.log_softmax(candidate_logits, dim=1)
+            return torch.sum(candidate_logits, axis=-1)
+
+        for batch in test_dataloader:
+            label = batch.pop('label').cpu().detach().tolist()
+            batch = {k: v.to(self.device) for k, v in batch.items()}
+            mask_pos = batch.pop('mask_pos')
+            with torch.no_grad():
+                outputs = self.model(**batch)
+            logits = decode(outputs, mask_pos, candidate_idx, mask_length)
+            predictions += [candidate_labels[i] for i in logits.argmax(-1).cpu().detach().numpy()]
+            labels += label
+        return self.metrics_fn(labels, predictions)

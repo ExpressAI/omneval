@@ -4,6 +4,7 @@ from .. import register_processor
 from .. import BaseProcessor
 import logging
 import pdb
+from transformers import GPT2Tokenizer, GPT2TokenizerFast
 
 warnings.filterwarnings('ignore')
 
@@ -24,14 +25,14 @@ class ProcessorForClassification(BaseProcessor):
         padding_id = self.tokenizer.pad_token_id if self.tokenizer.pad_token_id is not None else 0
         order_t, order_l = prompt_order // len(self.config.label_mappings), prompt_order % len(
             self.config.label_mappings)
-        prompt_schema, verbalizers = self.config.templates[order_t], self.config.label_mappings[order_l]
-        #TODO: Add torch logger
-        info = "Using %s, and label mappings %s"%(prompt_schema, str(verbalizers))
+        prompt_schema, label_tokens = self.config.templates[order_t], self.get_label_tokens(order_l)
+        info = "Using %s, and label mappings %s"%(prompt_schema, str([l.strip() for l in label_tokens]))
         logging.info(info)
-        mask_length = len(self.tokenizer.tokenize(verbalizers[0]))
-        for v in verbalizers:
-            if mask_length != len(self.tokenizer.tokenize(v)):
+        mask_length = len(self.tokenizer.tokenize(label_tokens[0], add_special_tokens=False))
+        for l in label_tokens:
+            if mask_length != len(self.tokenizer.tokenize(l, add_special_tokens=False)):
                 raise ValueError("Currently the framework only supports label mappings of the same token sizes")
+        test_subset = getattr(self.config, 'test_subset', 'test')
 
         def prompting(example, tokenizer, prompt_schema, mask_length, max_seq_length, padding_id=0):
             text = ''
@@ -41,24 +42,31 @@ class ProcessorForClassification(BaseProcessor):
 
             for item in prompt_schema.split('|'):
                 item = item.strip()
-                # for the placeholders of verbalizers
+                # for the placeholders of label_tokens
                 if item == '<mask>':
                     # TODO: Should find better adaptation ways for different tokenizers(GPT2)
                     if mask_token != '<|endoftext|>':
-                        if text and text[-1] != ' ':
+                        text = text.strip()
+                        if text:
                             text += ' '
                         text += (mask_token + ' ') * mask_length
                     else:
                         text += mask_token * mask_length
                     # for raw inputs
                 elif example.get(item) and isinstance(example[item], str):
-                    if remove_punc and example[item][-1] in '.,?!':
-                        text += example[item][: -1]
+                    tmp = example[item].strip()
+                    if tmp[-1] in '.,?!':
+                        text += tmp[: -1].strip()
+                        if not remove_punc:
+                            text += tmp[-1]
                     else:
-                        text += example[item]
+                        text += tmp
+                        if not remove_punc:
+                            text += '.'
                 # for prompting templates
                 else:
-                    if text and text[-1] != ' ':
+                    text = text.strip()
+                    if text and item not in '.,?!':
                         text += ' '
                     text += item
                     if text and text[-1] != ' ':
@@ -77,7 +85,7 @@ class ProcessorForClassification(BaseProcessor):
                 res['token_type_ids'] += (max_seq_length - text_len) * [0]
             return res
 
-        return self.raw_data['test'].map(
+        return self.raw_data[test_subset].map(
             lambda x: prompting(example=x,
                                 tokenizer=self.tokenizer,
                                 prompt_schema=prompt_schema,
@@ -87,8 +95,16 @@ class ProcessorForClassification(BaseProcessor):
             remove_columns=getattr(self.config, "remove_columns", None))
 
     def convert_verbalizers_to_ids(self, idx):
-        return [list(self.tokenizer.convert_tokens_to_ids(self.tokenizer.tokenize(x))) for x in
-                self.config.label_mappings[idx]]
+        return [list(self.tokenizer.encode(x,  add_special_tokens=False)) for x in self.get_label_tokens(idx)]
+
+    def get_label_tokens(self, idx):
+        # For GPT2 tokenizers, we should add a space before each word.
+        if isinstance(self.tokenizer, GPT2Tokenizer) or isinstance(self.tokenizer, GPT2TokenizerFast):
+            label_tokens = [' '+l for l in self.config.label_mappings[idx]]
+        else:
+            label_tokens = self.config.label_mappings[idx]
+        return label_tokens
+
 
     def generate_aux_inputs(self, prompt_order=0):
         order_t, order_l = prompt_order // len(self.config.label_mappings), prompt_order % len(
