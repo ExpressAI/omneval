@@ -126,6 +126,31 @@ class SNLIConfig(BaseConfig):
                      ('Except', 'Alright', 'Watch'),
                      ('Plus', 'Sometimes', 'Hopefully'),]
     remove_punc = True
+
+
+@register_task('qnli')
+class SNLIConfig(BaseConfig):
+    task = 'glue', 'qnli'
+    task_type = 'classification'
+    dataset_name = 'snli'
+    metrics = 'accuracy'
+    templates = [
+        'premise|.|<mask>|,|hypothesis|.|',
+        'premise|!|<mask>|,|hypothesis|.|',
+        'premise|.|<mask>|I think,|hypothesis|.|',
+        'premise|.|I think|<mask>|,|hypothesis|.|',
+        'premise|in the background. |<mask>|,|I think,|hypothesis|.|',
+    ]
+    labels = [2, 0, 1]
+    remove_columns = ['premise', 'hypothesis']
+    label_mappings = [('Instead', 'Indeed', 'Seriously'),
+                     ('Normally', 'YES', 'This'),
+                     ('Meanwhile', 'Right', 'Specifically'),
+                     ('Unless', 'Regardless', 'Fortunately'),
+                     ('Otherwise', 'Ok', 'Specifically'),
+                     ('Except', 'Alright', 'Watch'),
+                     ('Plus', 'Sometimes', 'Hopefully'),]
+    remove_punc = True
 #
 # ('Instead', 'Indeed', 'Seriously'),
 #  ('Instead', 'Indeed', 'Next'),

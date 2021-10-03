@@ -69,6 +69,7 @@ class ProcessorForClassification(BaseProcessor):
             mask_start_pos = res['input_ids'].index(mask_token_id)
             for i in range(mask_start_pos, mask_start_pos + mask_length):
                 res['mask_pos'][i] = 1
+            ## TODO: this part may be wrong for other tasks
             res.update({'label': int(round(example['label']))})
             res['input_ids'] += (max_seq_length - text_len) * [padding_id]
             res['attention_mask'] += (max_seq_length - text_len) * [0]
@@ -76,7 +77,7 @@ class ProcessorForClassification(BaseProcessor):
                 res['token_type_ids'] += (max_seq_length - text_len) * [0]
             return res
 
-        return self.raw_data.map(
+        return self.raw_data['test'].map(
             lambda x: prompting(example=x,
                                 tokenizer=self.tokenizer,
                                 prompt_schema=prompt_schema,

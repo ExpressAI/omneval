@@ -31,7 +31,7 @@ class BaseProcessor(object):
             dataset = self.config.dataset_name
         else:
             dataset = self.config.task
-        return load_dataset(dataset)
+        return load_dataset(dataset) if isinstance(dataset, str) else load_dataset(*dataset)
 
     def build_tokenizer(self, arch):
         return AutoTokenizer.from_pretrained(arch)
