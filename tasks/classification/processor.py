@@ -32,7 +32,6 @@ class ProcessorForClassification(BaseProcessor):
         for l in label_tokens:
             if mask_length != len(self.tokenizer.tokenize(l, add_special_tokens=False)):
                 raise ValueError("Currently the framework only supports label mappings of the same token sizes")
-        test_subset = getattr(self.config, 'test_subset', 'test')
 
         def prompting(example, tokenizer, prompt_schema, mask_length, max_seq_length, padding_id=0):
             text = ''
@@ -80,14 +79,14 @@ class ProcessorForClassification(BaseProcessor):
             for i in range(mask_start_pos, mask_start_pos + mask_length):
                 res['mask_pos'][i] = 1
             ## TODO: this part may be wrong for other tasks
-            res.update({'label': int(round(example['label']))})
+            res.update({'label': example['label']})
             res['input_ids'] += (max_seq_length - text_len) * [padding_id]
             res['attention_mask'] += (max_seq_length - text_len) * [0]
             if res.get('token_type_ids'):
                 res['token_type_ids'] += (max_seq_length - text_len) * [0]
             return res
 
-        return self.raw_data[test_subset].map(
+        return self.raw_data.map(
             lambda x: prompting(example=x,
                                 tokenizer=self.tokenizer,
                                 prompt_schema=prompt_schema,
