@@ -67,7 +67,7 @@ class GPTEvaluatorForClassification(BaseEvaluator):
     def eval(self, dataset, **kwargs):
         candidate_idx = kwargs.get('candidate_idx').to(self.device)
         candidate_labels = kwargs.get('candidate_labels')
-        test_dataloader = DataLoader(dataset, batch_size=8, collate_fn=collate_fn)
+        test_dataloader = DataLoader(dataset, batch_size=self.config.eval_batch_size, collate_fn=collate_fn)
         self.model.eval()
         predictions = []
         labels = []

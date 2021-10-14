@@ -17,6 +17,7 @@ class BaseConfig(object):
         assert getattr(self, 'task') is not None, "task name should be specified"
         assert getattr(self, 'task_type') is not None, "task type should be specified"
         assert getattr(self, 'metrics') is not None, "evaluation metrics should be specified"
+        self.eval_batch_size = getattr(self, 'eval_batch_size', 32)
 
 
 class BaseProcessor(object):
@@ -33,8 +34,17 @@ class BaseProcessor(object):
         else:
             dataset = self.config.task
         test_subset = getattr(self.config, 'test_subset', 'test')
-        df = load_dataset(dataset, split=test_subset) if isinstance(dataset, str) \
-            else load_dataset(*dataset, split=test_subset)
+        if isinstance(dataset, str):
+            if os.path.exists(dataset):
+                logging.info("Load dataset from local files: %s"%dataset)
+                fmt = dataset.split('.')[-1]
+                df = load_dataset(fmt, data_files={test_subset: dataset}, split=test_subset)
+            else:
+                logging.info("Search dataset %s from Huggingface's Hub"%dataset)
+                df = load_dataset(dataset, split=test_subset)
+        else:
+            logging.info("Search dataset %s from Huggingface's Hub" % '/'.join(dataset))
+            df = load_dataset(*dataset, split=test_subset)
         if hasattr(self.config, 'filter_fn'):
             filter_fn = getattr(self.config, 'filter_fn', None)
             assert callable(filter_fn)
@@ -42,7 +52,7 @@ class BaseProcessor(object):
             df = df.filter(filter_fn)
             logging.info("Use filter_fn to filter the dataset, got %d examples"%(df.num_rows))
         except:
-            logging.info("filter_fn not valid, use the original data, got %d examples"%(df.num_rows))
+            logging.info("No filter_fn or filter_fn not valid, use the original data, got %d examples"%(df.num_rows))
         return df
 
     def build_tokenizer(self, arch):
