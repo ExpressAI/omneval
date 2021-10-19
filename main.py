@@ -25,7 +25,7 @@ def main():
     for pid in range(processor.prompt_count):
         dataset = processor.generate_dataset(pid)
         aux_input = processor.generate_aux_inputs(pid)
-        logging.info("Accuracy of task %s, prompt %d: %.2f" % (args.task, pid, evaluator.eval(dataset, **aux_input)))
+        logging.info("%s of task %s, prompt %d: %.3f" % (task_config.metrics, args.task, pid, evaluator.eval(dataset, **aux_input)))
 
 
 ##TODO: add distributed_main

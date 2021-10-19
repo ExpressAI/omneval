@@ -12,8 +12,73 @@ class SST2Config(BaseConfig):
         'sentence|It was |<mask>|.'
     ]
     labels = [0, 1]
+    remove_columns = ['sentence']
+    label_mappings = [('terrible', 'great')]
+
+
+@register_task('mrpc')
+class MRPC2Config(BaseConfig):
+    task = 'mrpc'
+    task_type = 'classification'
+    dataset_name = ['glue', 'mrpc']
+    test_subset = 'validation'
+    metrics = 'f1'
+    templates = [
+        'sentence1|?|<mask>|,|sentence2|.|',
+    ]
+    labels = [0, 1]
+    remove_columns = ['sentence1', 'sentence2','idx']
+    label_mappings = [('No', 'Yes')]
+
+
+@register_task('qqp')
+class QQPConfig(BaseConfig):
+    task = 'qqp'
+    task_type = 'classification'
+    dataset_name = ['glue', 'qqp']
+    test_subset = 'validation'
+    metrics = 'f1'
+    templates = [
+        'sentence1|?|<mask>|,|sentence2|.|',
+    ]
+    labels = [0, 1]
+    remove_columns = ['sentence1', 'sentence2','idx']
+    label_mappings = [('No', 'Yes')]
+
+@register_task('sst2_m')
+class SST2Config(BaseConfig):
+    task = 'sst2_m'
+    task_type = 'classification_m'
+    dataset_name = ['glue', 'sst2']
+    test_subset = 'validation'
+    metrics = 'accuracy'
+    templates = [
+        'sentence|It was |<mask>|.'
+    ]
+    labels = [0, 1]
+    remove_columns = ['sentence', 'idx']
+    label_mappings = [
+    ['bad', 'terrible', 'awful', 'dire', 'dread', 'dreadful', 'fearful', 'grand', 'horrible', 'imposing', 'majestic', 'shocking', 'solemn',],
+    ['great', 'good', 'right', 'sound', 'pious', 'benevolent', 'competent', 'real', 'considerable', 'righteous', 'proper', 'upright', 'excellent']
+    ]
+    topk = 7
+
+
+
+@register_task('sst2_qa')
+class SST2Config(BaseConfig):
+    task = 'sst2_qa'
+    task_type = 'classification'
+    dataset_name = ['glue', 'sst2']
+    test_subset = 'validation'
+    metrics = 'accuracy'
+    templates = [
+        'sentence|It was ?'
+    ]
+    labels = [0, 1]
     remove_columns = ['sentence', 'idx']
     label_mappings = [('terrible', 'great')]
+    qa_prompting = True
 
 
 @register_task('snli')
@@ -30,6 +95,35 @@ class SNLIConfig(BaseConfig):
     remove_columns = ['premise', 'hypothesis']
     label_mappings = [('No', 'Yes', 'Maybe'),]
     remove_punc = True
+    eval_batch_size = 32
+
+
+@register_task('snli_m')
+class SNLIConfig(BaseConfig):
+    task = 'snli_m'
+    task_type = 'classification_m'
+    dataset_name = 'snli'
+    test_subset = 'validation'
+    metrics = 'accuracy'
+    templates = [
+        'premise|?|<mask>|,|hypothesis|.|',
+    ]
+    labels = [2, 0, 1]
+    remove_columns = ['premise', 'hypothesis']
+    label_mappings = [['No', 'Instead', 'Normally', 'Meanwhile', 'Unless', 'Otherwise', 'Except', 'Plus'],
+                      ['Yes','Indeed', 'YES', 'Right', 'Regardless', 'Ok', 'Alright', 'Sometimes'],
+                      ['Maybe', 'Seriously',
+                       'This',
+                       'Specifically',
+                       'Fortunately',
+                       'Specifically',
+                       'Watch',
+                       'Hopefully']
+]
+    remove_punc = True
+    eval_batch_size = 32
+    topk = 7
+
 
 
 @register_task('mnli')

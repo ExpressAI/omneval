@@ -4,6 +4,7 @@ from .. import register_processor
 from .. import BaseProcessor
 import logging
 from transformers import GPT2Tokenizer, GPT2TokenizerFast
+import pdb
 
 warnings.filterwarnings('ignore')
 
@@ -25,8 +26,8 @@ class ProcessorForKnowledgeProbing(BaseProcessor):
         padding_id = self.tokenizer.pad_token_id if self.tokenizer.pad_token_id is not None else 0
         query = getattr(self.config, 'query_name', 'template')
         subject = getattr(self.config, 'subject_name', 'sub_label')
-        label = getattr(self.config, 'label_name', 'obj_label')
-        remove_columns = difference(self.raw_data.features.keys(), [label])
+        label_name = getattr(self.config, 'label_name', 'obj_label')
+        remove_columns = difference(self.raw_data.features.keys(), ['label'])
         def prompting(example, tokenizer, max_seq_length, padding_id=0):
             mask_token = tokenizer.mask_token if tokenizer._mask_token is not None else tokenizer.unk_token
             mask_token_id = tokenizer.mask_token_id if tokenizer._mask_token is not None else tokenizer.unk_token_id
@@ -42,6 +43,9 @@ class ProcessorForKnowledgeProbing(BaseProcessor):
             res['attention_mask'] += (max_seq_length - text_len) * [0]
             if res.get('token_type_ids'):
                 res['token_type_ids'] += (max_seq_length - text_len) * [0]
+            if isinstance(self.tokenizer, GPT2Tokenizer) or isinstance(self.tokenizer, GPT2TokenizerFast):
+                example[label_name] = ' '+example[label_name]
+            res['label'] = self.tokenizer.encode(example[label_name], add_special_tokens=False)
             return res
 
         return self.raw_data.map(

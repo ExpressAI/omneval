@@ -7,6 +7,10 @@ def collate_fn(batch):
     return {k: torch.LongTensor([bz[k] for bz in batch]) for k in keys}
 
 
-def set_config(cls, config):
-    for k, v in config.items():
-        setattr(cls, k, v)
+def get_logits(outputs):
+    if hasattr(outputs, 'logits'):
+        logits = outputs.logits
+    elif hasattr(outputs, 'prediction_logits'):
+        logits = outputs.prediction_logits
+    else:
+        raise NotImplementedError
