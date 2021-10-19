@@ -14,6 +14,7 @@ PROCESSOR_REGISTRY = {}
 EVALUATOR_REGISTRY = {}
 METRICS_REGISTRY = {}
 
+
 def collate_fn(batch, exclude=[]):
     keys = batch[0].keys()
     return {k: (torch.LongTensor([bz[k] for bz in batch]) if k not in exclude else [bz[k] for bz in batch]) for k in keys}
@@ -28,6 +29,7 @@ def get_logits(outputs):
         raise NotImplementedError
     return logits
 
+
 class BaseConfig(object):
     def __init__(self):
         assert getattr(self, 'task') is not None, "task name should be specified"
@@ -40,11 +42,12 @@ class BaseProcessor(object):
     """The base processor class"""
 
     def __init__(self, arch, config):
-        self.config = config
+        self.config = config    # task config
         self.raw_data = self.build_dataset()
         self.tokenizer = self.build_tokenizer(arch)
 
     def build_dataset(self):
+        """Import the raw dataset"""
         if hasattr(self.config, 'dataset_name'):
             dataset = self.config.dataset_name
         else:
@@ -72,20 +75,25 @@ class BaseProcessor(object):
         return df
 
     def build_tokenizer(self, arch):
+        """Build the tokenizer given model arch name"""
         return AutoTokenizer.from_pretrained(arch)
 
     def generate_dataset(self, prompt_order=0):
+        """Prompting each instance and build dataset directly for the Evaluator"""
         raise NotImplementedError
 
     def generate_aux_inputs(self, prompt_order=0):
+        """Generate other inputs required for the dataset"""
         return {}
 
     @property
     def prompt_count(self):
+        """Count for number of prompt schema"""
         raise NotImplementedError
 
     @property
     def task_info(self):
+        """Print the task info"""
         return self.config
 
 
@@ -99,6 +107,7 @@ class BaseEvaluator(object):
         self.metrics_fn = build_metrics(config.metrics)
 
     def build_model(self, arch):
+        """Initialize model for evaluation"""
         raise NotImplementedError
 
     def build_tokenizer(self, arch):
@@ -141,7 +150,7 @@ class BaseEvaluator(object):
         predictions = []
         labels = []
         for batch in tqdm(dataloader):
-            label = batch.pop('label').view(-1).cpu().detach().tolist()
+            label = batch.pop(label_name).view(-1).cpu().detach().tolist()
             batch = {k: v.to(self.device) for k, v in batch.items()}
             predictions += self.decode(batch, **kwargs)
             labels += label
