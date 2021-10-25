@@ -1,6 +1,6 @@
 import torch
 import warnings
-from .. import register_processor
+from .. import register_processor, difference
 from .. import BaseProcessor
 import logging
 from transformers import GPT2Tokenizer, GPT2TokenizerFast
@@ -8,8 +8,6 @@ import pdb
 
 warnings.filterwarnings('ignore')
 
-def difference(list1, list2):
-    return [item for item in list1 if item not in list2]
 
 
 @register_processor('knowledge_probing')
@@ -22,7 +20,7 @@ class ProcessorForKnowledgeProbing(BaseProcessor):
     def prompt_count(self):
         return 1   # For knowledge probing datasets, the templates are integrated in the dataset
 
-    def generate_dataset(self, prompt_order=0):
+    def generate_dataset(self, pid=0):
         padding_id = self.tokenizer.pad_token_id if self.tokenizer.pad_token_id is not None else 0
         query = getattr(self.config, 'query_name', 'template')
         subject = getattr(self.config, 'subject_name', 'sub_label')
