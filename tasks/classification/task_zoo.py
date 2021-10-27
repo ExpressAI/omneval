@@ -81,23 +81,6 @@ class SST2Config(BaseConfig):
     topk = 7
 
 
-
-@register_task('sst2_qa')
-class SST2Config(BaseConfig):
-    task = 'sst2_qa'
-    task_type = 'classification'
-    dataset_name = ['glue', 'sst2']
-    test_subset = 'validation'
-    metrics = 'accuracy'
-    templates = [
-        'sentence|It was ?'
-    ]
-    labels = [0, 1]
-    remove_columns = ['sentence', 'idx']
-    label_mappings = [('terrible', 'great')]
-    qa_prompting = True
-
-
 @register_task('snli')
 class SNLIConfig(BaseConfig):
     task = 'snli'
@@ -209,7 +192,7 @@ class SNLIConfig(BaseConfig):
 @register_task('sst2_demo')
 class SST2Config(BaseConfig):
     # Required: The unique task identifier for this task
-    task = 'sst2_m'
+    task = 'sst2_demo'
     # Required: the task type, each task type corresponds to a data processor
     task_type = 'classification_demo'
     # Required: Either input a file name that can be tracked in the environment(like  '${PATH_TO_FILE}/${FILE_NAME}')
@@ -227,7 +210,44 @@ class SST2Config(BaseConfig):
     # e.g  `sentence` is the column name for the raw text "It was" and "." are templates, <mask> is the masked poition
     # Then the template is "<text> It was <mask>."
     templates = [
-        'sentence|It was |<mask>|.'
+        'sentence|It was |<mask>|.',
+        'It was |<mask>|.|sentence|',
+        'sentence|What a |<mask>| movie.'
+    ]
+    # Required: The label for this task
+    labels = [0, 1]
+    # Required: Manually-designed label for each class, the order of `labels` and label_mapping` should match
+    label_mappings = [
+    ['bad', 'terrible', 'awful', 'dire', 'dread', 'fearful', 'horrible', 'imposing', 'shocking', 'solemn',],
+    ['great', 'good', 'right', 'sound', 'pious', 'competent', 'righteous', 'proper', 'upright', 'excellent']
+    ]
+    # Optional: choose the majority class of highest-topk label candidates
+    topk = 7
+
+
+
+@register_task('sst2_qa')
+class SST2Config(BaseConfig):
+    # Required: The unique task identifier for this task
+    task = 'sst2_qa'
+    # Required: the task type, each task type corresponds to a data processor
+    task_type = 'classification_demo'
+    # Required: Either input a file name that can be tracked in the environment(like  '${PATH_TO_FILE}/${FILE_NAME}')
+    # or a str or list, which is a dataset name for huggingface's `datasets`
+    dataset_name = ['glue', 'sst2']  # datasets.load_dataset('glue', 'sst2')
+    # dataset_name = 'lama.json'  # datasets.load_dataset('json', 'lama.json')
+    # dataset_name = 'lama '    # datasets.load_dataset('lama')
+    # Required: The metrics used for this task
+    metrics = 'accuracy'
+    # Optional: The data split used for evaluation: default 'test'
+    test_subset = 'validation'
+
+    # Below are parameters for text classification
+    # Required: prompt template:
+    # e.g  `sentence` is the column name for the raw text "It was" and "." are templates, <mask> is the masked poition
+    # Then the template is "<text> It was <mask>."
+    templates = [
+        'sentence|It was?'
     ]
     # Required: The label for this task
     labels = [0, 1]
@@ -238,3 +258,4 @@ class SST2Config(BaseConfig):
     ]
     # Optional: choose the majority class of highest-topk label candidates
     topk = 7
+    qa_prompting = True

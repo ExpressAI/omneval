@@ -8,6 +8,7 @@ from torch.utils.data import DataLoader
 import logging
 from tqdm import tqdm
 import pdb
+import pandas as pd
 import collections
 
 TASK_REGISTRY = {}
@@ -182,20 +183,26 @@ class BaseEvaluator(object):
         res['label'] = labels
         logging.info("Evaluation metrics of the task %s on model: %s---%s: %.3f" % (
             self.config.task, self.arch, self.config.metrics, metrics))
-        return res
+        res_list = []
+        length = len(res['predictions'])
+        for i in range(length):
+            res_list.append(self.parse_predictions({k: v[i] for k, v in res.items()}))
+        eval_result = {self.config.metrics: metrics}
+        eval_result.update(self.analysis(res_list))
+        return res_list, eval_result
 
     def write_to_json(self, outputs, output_dir):
         res = []
         for output in outputs:
-            length = len(output['predictions'])
-            for i in range(length):
-                res.append(self.parse_predictions({k: v[i] for k, v in output.items()}))
+            res += output
         with open(output_dir, 'w') as f:
             for row in res:
                 f.writelines(str(row)+'\n')
 
-
     def parse_predictions(self, prediction):
+        raise NotImplementedError
+
+    def analysis(self, res_list):
         raise NotImplementedError
 
 

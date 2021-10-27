@@ -5,6 +5,7 @@ import logging
 import pdb
 import collections
 logging.basicConfig(level=logging.INFO)
+import numpy as np
 
 
 
@@ -26,16 +27,20 @@ def main():
     processor = build_processor(config)
     evaluator = build_evaluator(config)
     outputs = []
+    eval_results = {}
     for pid in range(processor.prompt_count):
         dataset = processor.generate_dataset(pid)
         aux_input = processor.generate_aux_inputs(pid)
-        outputs.append(evaluator.eval(dataset, **aux_input))
-        if args.out_dir:
-            evaluator.write_to_json(outputs, args.out_dir)
+        output, eval_result = evaluator.eval(dataset, **aux_input)
+        outputs.append(output)
+        eval_results[processor.prompt_schema(pid)] = eval_result
+    if args.out_dir:
+        evaluator.write_to_json(outputs, args.out_dir)
+    logging.info(eval_results)
+    metrics_avg = np.mean([v[config.metrics] for v in eval_results.values()])
+    logging.info("Average Evaluation metrics of the task %s on model: %s---%s: %.3f" % (
+       config.task, config.arch, config.metrics, metrics_avg))
 
-    # logging.info("%s of task %s, prompt %d: %.3f" % (config.metrics, args.task, pid, evaluator.eval(dataset, **aux_input)))
-
-
-##TODO: add distributed_main
+        ##TODO: add distributed_main
 if __name__ == "__main__":
     main()
