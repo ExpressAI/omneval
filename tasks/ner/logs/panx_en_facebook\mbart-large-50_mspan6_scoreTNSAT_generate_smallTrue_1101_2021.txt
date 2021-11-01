@@ -1,0 +1,54 @@
+The tokenizer class you load from this checkpoint is not the same type as the class this function is called from. It may result in unexpected tokenization. 
+The tokenizer class you load from this checkpoint is 'MBart50Tokenizer'. 
+The class this function is called from is 'MBartTokenizer'.
+Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+current considered lang:  en
+file-path:  ./data/ner/panx/test-en_full.tsv
+test on 10 samples: 
+
+lanbel description: 
+lang_label2ans:  {'O': 'XX is not an entity name.', 'LOC': 'XX is a location name.', 'PER': 'XX is a person name.', 'ORG': 'XX is an organization name.'}
+
+idx2label: 
+{0: 'O', 1: 'LOC', 2: 'PER', 3: 'ORG'}
+
+lang_nclass:  4
+
+{'sentence': 'Mayflower , Arkansas', 'span': 'Mayflower , Arkansas', 'sent_span_idx': (0, 0, 3), 'true_tag': 'LOC', 'consi_tag': 'O', 'target': 'Mayflower , Arkansas is not an entity name.'}
+{'sentence': 'Mayflower , Arkansas', 'span': 'Mayflower , Arkansas', 'sent_span_idx': (0, 0, 3), 'true_tag': 'LOC', 'consi_tag': 'LOC', 'target': 'Mayflower , Arkansas is a location name.'}
+{'sentence': 'Mayflower , Arkansas', 'span': 'Mayflower , Arkansas', 'sent_span_idx': (0, 0, 3), 'true_tag': 'LOC', 'consi_tag': 'PER', 'target': 'Mayflower , Arkansas is a person name.'}
+{'sentence': 'Mayflower , Arkansas', 'span': 'Mayflower , Arkansas', 'sent_span_idx': (0, 0, 3), 'true_tag': 'LOC', 'consi_tag': 'ORG', 'target': 'Mayflower , Arkansas is an organization name.'}
+{'sentence': 'Mayflower , Arkansas', 'span': 'Mayflower', 'sent_span_idx': (0, 0, 1), 'true_tag': 'O', 'consi_tag': 'O', 'target': 'Mayflower is not an entity name.'}
+{'sentence': 'Mayflower , Arkansas', 'span': 'Mayflower', 'sent_span_idx': (0, 0, 1), 'true_tag': 'O', 'consi_tag': 'LOC', 'target': 'Mayflower is a location name.'}
+{'sentence': 'Mayflower , Arkansas', 'span': 'Mayflower', 'sent_span_idx': (0, 0, 1), 'true_tag': 'O', 'consi_tag': 'PER', 'target': 'Mayflower is a person name.'}
+
+
+args value: 
+batch_size=20
+column_no=1
+data_name='panx'
+data_path='data/ner/conll2003txt/test.txt'
+delimiter='\t'
+dir='./data/ner/panx/'
+dtype='test'
+eval_model='facebook/mbart-large-50'
+eval_model_class='mbart'
+eval_tokenizer='facebook/mbart-large-50'
+fn_write_dir='results/ner/'
+language='en'
+max_span_width=6
+model_name='panx_en_facebook\\mbart-large-50_mspan6_scoreTNSAT_generate_smallTrue'
+n_class=4
+path_temp='./data/ner/multilingual_NER_template.xlsx'
+ratio_neg=1.5
+score_fun='TNSAT'
+temp_form='generate'
+use_small_data=True
+batch_size:  20
+n_class:  4
+idx2label:  {0: 'O', 1: 'LOC', 2: 'PER', 3: 'ORG'}
+random_int:  32605698
+f1, p, r, correct_preds, total_preds, total_correct:
+0.07017543859649122 0.041237113402061855 0.23529411764705882 4.0 97.0 17.0
+f1, p, r, correct_preds, total_preds, total_correct: 
+0.07017543859649122 0.041237113402061855 0.23529411764705882 4.0 97.0 17.0
