@@ -2,21 +2,32 @@ import argparse
 import importlib
 import os
 
-from ..tasks import BaseConfig, BaseProcessor, BaseEvaluator
+from omneval.tasks import BaseConfig, BaseProcessor, BaseEvaluator
 
 TASK_REGISTRY = {}
 PROCESSOR_REGISTRY = {}
 EVALUATOR_REGISTRY = {}
+METRICS_REGISTRY = {}
 
+def build_config(args, task):
+    config = TASK_REGISTRY[task]()
+    for k, v in vars(args).items():
+        if k not in ['tasks', 'archs']:
+            setattr(config, k, v)
+    config.task = task
+    return config
 
-def build_config(args):
-    return TASK_REGISTRY[args.task]()
 
 def build_processor(config):
-    return PROCESSOR_REGISTRY[config.task](config)
+    return PROCESSOR_REGISTRY[config.task_type](config)
 
-def build_evaluator(arch,  config):
-    return EVALUATOR_REGISTRY[config.task_type][arch](arch, config)
+
+def build_evaluator(config):
+    return EVALUATOR_REGISTRY[config.task_type][config.arch](config)
+
+
+def build_metrics(name):
+    return METRICS_REGISTRY[name]
 
 
 def register_task(name):
@@ -51,7 +62,7 @@ def register_processor(task_type):
 
     def register_processor_fn(cls):
         if task_type in PROCESSOR_REGISTRY:
-            raise ValueError('Cannot register duplicate processor ({})'.format(model_name))
+            raise ValueError('Cannot register duplicate processor ({})'.format(task_type))
         if not issubclass(cls, BaseProcessor):
             raise ValueError('Task ({}: {}) must extend from the BaseProcessor'.format(task_type, cls.__name__))
         PROCESSOR_REGISTRY[task_type] = cls
@@ -60,20 +71,17 @@ def register_processor(task_type):
     return register_processor_fn
 
 
-def register_evaluator(task_type, arch_name):
+def register_evaluator(task_type, archs):
     """
     New evaluator can be added with the :func:`register_processor`
     """
     def register_evaluator_fn(cls):
-        if task_type not in PROCESSOR_REGISTRY:
-            raise ValueError('Cannot register evaluators for unknown task types ({})'.format(task_type))
         if not issubclass(cls, BaseEvaluator):
             raise ValueError('Task ({}: {}) must extend from the BaseEvaluator'.format(task_type, cls.__name__))
         if EVALUATOR_REGISTRY.get(task_type) is None:
             EVALUATOR_REGISTRY[task_type] = {}
-        if isinstance(arch_name, str):
-            arch_name = [arch_name, ]
-        for arch in arch_name:
+
+        for arch in archs:
             if arch in EVALUATOR_REGISTRY[task_type]:
                 raise ValueError('Cannot register duplicate evaluator ({})'.format(arch))
             EVALUATOR_REGISTRY[task_type][arch] = cls
@@ -82,17 +90,22 @@ def register_evaluator(task_type, arch_name):
     return register_evaluator_fn
 
 
-# automatically import any Python files in the models/ directory
-for file in os.listdir(os.path.dirname(__file__)):
-    if file.endswith('.py') and not file.startswith('_'):
-        model_name = file[:file.find('.py')]
-        module = importlib.import_module('fairseq.models.' + model_name)
+def register_metrics(name):
+    """
+    New metrics can be added with the :func:`register_metrics`
+    """
+    def register_metrics_fn(fn):
+        if name in METRICS_REGISTRY:
+            raise ValueError('Cannot register duplicate metrics ({})'.format(name))
+        if not callable(fn):
+            raise ValueError('metrics must be callable ({})'.format(name))
+        METRICS_REGISTRY[name] = fn
+        return fn
 
-        # extra `model_parser` for sphinx
-        if model_name in TASK_REGISTRY:
-            parser = argparse.ArgumentParser(add_help=False)
-            group_archs = parser.add_argument_group('Named architectures')
-            group_archs.add_argument('--arch', choices=ARCH_MODEL_INV_REGISTRY[model_name])
-            group_args = parser.add_argument_group('Additional command-line arguments')
-            TASK_REGISTRY[model_name].add_args(group_args)
-            globals()[model_name + '_parser'] = parser
+    return register_metrics_fn
+
+
+# automatically import any Python files in the models/ directory
+for file in os.listdir(os.path.join(os.path.dirname(__file__), 'tasks')):
+    if not file.endswith('.py') and not file.startswith('_'):
+        module = importlib.import_module('omneval.tasks.' + file)

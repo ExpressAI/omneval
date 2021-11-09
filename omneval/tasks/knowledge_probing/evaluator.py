@@ -1,32 +1,24 @@
 import torch
 from torch.utils.data import DataLoader
-from .. import BaseEvaluator, register_evaluator, get_logits
+from omneval.tasks import BaseEvaluator
+from omneval.utils import get_logits, collate_fn
+from omneval.registry import register_evaluator
 from transformers import AutoModelForPreTraining
 import re
-import pdb
-from tqdm import tqdm
+
 BERT_MODELS = ['bert-base-uncased', 'roberta-base', 'bert-large-uncased', 'roberta-large', 'distilroberta-base',
                'distilbert-base-uncased']
 GPT_MODELS = ['openai-gpt', 'gpt2']
 BART_MODELS = ['facebook/bart-base', 'google/bert_for_seq_generation_L-24_bbc_encoder']
 
 
-def collate_fn(batch, exclude=[]):
-    keys = batch[0].keys()
-    return {k: (torch.LongTensor([bz[k] for bz in batch]) if k not in exclude else [bz[k] for bz in batch]) for k in keys}
 
 
-def normalize(text: str) -> str:
-    text = text.strip().lower()
-    text = re.sub(r'\s+', ' ', text)
-    return text
-
-
-@register_evaluator('knowledge_probing', BERT_MODELS)
+@register_evaluator('knowledge_probing', BERT_MODELS+GPT_MODELS+BART_MODELS)
 class BERTEvaluatorForKnowledgeProbing(BaseEvaluator):
 
-    def build_model(self, arch):
-        return AutoModelForPreTraining.from_pretrained(arch).to(self.device)
+    def build_model(self):
+        return AutoModelForPreTraining.from_pretrained(self.config.arch).to(self.device)
 
     def decode(self, batch, **kwargs):
         mask_pos = batch.pop('mask_pos')
@@ -34,4 +26,11 @@ class BERTEvaluatorForKnowledgeProbing(BaseEvaluator):
             outputs = self.model(**batch)
         logits = get_logits(outputs)
         mask_logits = logits[mask_pos > 0]
-        return [i for i in mask_logits.argmax(-1).cpu().detach().numpy()]
+        pred = [i for i in mask_logits.argmax(-1).cpu().detach().numpy()]
+        return {'predictions': pred}
+
+    def parse_predictions(self, prediction):
+        return prediction
+
+    def analysis(self, res_list):
+        return {}

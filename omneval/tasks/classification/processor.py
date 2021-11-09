@@ -1,15 +1,16 @@
 import torch
 import warnings
-from .. import register_processor, difference
-from .. import BaseProcessor
-import logging
+from omneval.tasks import BaseProcessor
+from omneval.utils import pad_input_ids, truncate_text, normalize_raw_text_to_inputs, append_templates_to_inputs, append_mask_token_to_inputs
+from omneval.registry import register_processor
 import pdb
 from transformers import GPT2Tokenizer, GPT2TokenizerFast
+import string
 
 warnings.filterwarnings('ignore')
 
 
-@register_processor('classification_demo')
+@register_processor('classification')
 class ProcessorForClassificationDemo(BaseProcessor):
 
     def __init__(self, config):
@@ -26,43 +27,25 @@ class ProcessorForClassificationDemo(BaseProcessor):
     def prompt_schema(self, pid):
         return self.config.templates[pid]
 
-    def prompting(self, example, prompt_schema):
+    def prompting(self, example, prompt_schema, max_length=512):
         text = ''
+        text_length_cnt = 0
         for item in prompt_schema.split('|'):
             item = item.strip()
             # for the placeholders of label_tokens
             if item == '<mask>':
-                # TODO: Should find better adaptation ways for different tokenizers(GPT2)
-                if self.mask_token != '<|endoftext|>':
-                    text = text.strip()
-                    if text:
-                        text += ' '
-                    text += (self.mask_token + ' ') * self.mask_length
-                else:
-                    text += self.mask_token * self.mask_length
-                # for raw inputs
-            elif example.get(item) and isinstance(example[item], str):
-                tmp = example[item].strip()
-                if text and text.strip()[-1] not in '.?!':
-                    tmp = tmp.lower()
-                if tmp[-1] in '.,?!':
-                    text += tmp[: -1].strip()
-                    if not self.remove_punc:
-                        text += tmp[-1]
-                else:
-                    text += tmp
-                    if not self.remove_punc:
-                        text += '.'
+                text = append_mask_token_to_inputs(text, self.mask_token, self.mask_length)
+            elif item in example and isinstance(example[item], str):
+                appended_text = normalize_raw_text_to_inputs(example[item], self.remove_punc)
+                appended_text, appended_length = truncate_text(appended_text, self.tokenizer, max_length-text_length_cnt)
+                text_length_cnt += appended_length
+                text += appended_text
             # for prompting templates
             else:
-                text = text.strip()
-                if text and item not in '.,?!':
-                    text += ' '
-                text += item
-                if text and text[-1] != ' ':
-                    text += ' '
+                text = append_templates_to_inputs(text, item)
         res = self.tokenizer(text.strip())
         text_len = len(res['input_ids'])
+        res = pad_input_ids(res, self.max_seq_length, self.padding_id)
         res['mask_pos'] = [0] * self.max_seq_length
         # If no mask in the template, append mask in the end
         try:
@@ -76,16 +59,19 @@ class ProcessorForClassificationDemo(BaseProcessor):
             else:
                 res['decoder_input_ids'] = self.tokenizer.encode(((self.mask_token + ' ') * self.mask_length).strip())
                 mask_start_pos = res['decoder_input_ids'].index(self.mask_token_id)
-        for i in range(mask_start_pos, mask_start_pos + self.mask_length):
-            res['mask_pos'][i] = 1
+        try:
+            for i in range(mask_start_pos, mask_start_pos + self.mask_length):
+                res['mask_pos'][i] = 1
+        except:
+            pdb.set_trace()
         ## TODO: this part may be wrong for other tasks
         res.update({self.label_name: example[self.label_name]})
-        res['input_ids'] += (self.max_seq_length - text_len) * [self.padding_id]
-        res['attention_mask'] += (self.max_seq_length - text_len) * [0]
-        if res.get('token_type_ids'):
-            res['token_type_ids'] += (self.max_seq_length - text_len) * [0]
-        if res.get('decoder_input_ids'):
-            res['decoder_input_ids'] += (self.max_seq_length - len(res.get('decoder_input_ids'))) * [0]
+        # res['input_ids'] += (self.max_seq_length - text_len) * [self.padding_id]
+        # res['attention_mask'] += (self.max_seq_length - text_len) * [0]
+        # if res.get('token_type_ids'):
+        #     res['token_type_ids'] += (self.max_seq_length - text_len) * [0]
+        # if res.get('decoder_input_ids'):
+        #     res['decoder_input_ids'] += (self.max_seq_length - len(res.get('decoder_input_ids'))) * [0]
         return res
 
     def convert_verbalizers_to_ids(self):
@@ -129,49 +115,5 @@ class ProcessorForClassificationDemo(BaseProcessor):
         calibrate_input = self.generate_calibrate_example(pid) if getattr(self.config, "calibrate", False) else None
         return {'candidate_idx': candidate_idx, 'candidate_idx_mask': candidate_idx_mask,
                 'candidate_labels': candidate_labels, "qa_prompting": qa_prompting, "calibrate_input": calibrate_input}
-
-    def generate_calibrate_example(self, pid):
-        prompt_schema = self.prompt_schema(pid)
-        text = ''
-        for item in prompt_schema.split('|'):
-            item = item.strip()
-            # for the placeholders of label_tokens
-            if item == '<mask>':
-                # TODO: Should find better adaptation ways for different tokenizers(GPT2)
-                if self.mask_token != '<|endoftext|>':
-                    text = text.strip()
-                    if text:
-                        text += ' '
-                    text += (self.mask_token + ' ') * self.mask_length
-                else:
-                    text += self.mask_token * self.mask_length
-                # for raw inputs
-            elif item not in self.raw_data.features.keys():
-                text = text.strip()
-                if text and item not in '.,?!':
-                    text += ' '
-                text += item
-                if text and text[-1] != ' ':
-                    text += ' '
-
-        res = self.tokenizer(text.strip())
-        text_len = len(res['input_ids'])
-        res['mask_pos'] = [0] * self.max_seq_length
-        # If no mask in the template, append mask in the end
-        try:
-            mask_start_pos = res['input_ids'].index(self.mask_token_id)
-        except:
-            mask_start_pos = 0
-            if not getattr(self.config, 'qa_prompting', False):
-                res['input_ids'] += self.mask_length * [self.mask_token_id, ]
-                res['attention_mask'] += self.mask_length * [1]
-                text_len += self.mask_length
-        for i in range(mask_start_pos, mask_start_pos + self.mask_length):
-            res['mask_pos'][i] = 1
-        res['input_ids'] += (self.max_seq_length - text_len) * [self.padding_id]
-        res['attention_mask'] += (self.max_seq_length - text_len) * [0]
-        if res.get('token_type_ids'):
-            res['token_type_ids'] += (self.max_seq_length - text_len) * [0]
-        return res
 
 
