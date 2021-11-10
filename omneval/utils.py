@@ -44,15 +44,16 @@ def truncate_text(text, tokenizer, target_length):
     return text, text_length
 
 
-def pad_input_ids(example, max_seq_length, padding_id):
+def pad_input_ids(example, max_seq_length, padding_id, truncated='right'):
     text_len = len(example['input_ids'])
-    assert text_len <= max_seq_length, "length of input_ids %s, max_length thres %d"%(text_len, max_seq_length)
-    # if text_len > max_seq_length:
-    #     for k in example.keys():
-    #         if truncated == 'right':
-    #             example[k] = example[k][: max_seq_length]
-    #         else:
-    #             example[k] = example[k][-max_seq_length:]
+    # assert text_len <= max_seq_length, "length of input_ids %s, max_length thres %d"%(text_len, max_seq_length)
+    if text_len > max_seq_length:
+        # print("length of input_ids %s, max_length thres %d; trancate from %s"%(text_len, max_seq_length, truncated))
+        for k in example.keys():
+            if truncated == 'right':
+                example[k] = example[k][: max_seq_length]
+            else:
+                example[k] = example[k][-max_seq_length:]
     example['input_ids'] += (max_seq_length - text_len) * [padding_id]
     example['attention_mask'] += (max_seq_length - text_len) * [0]
     if example.get('token_type_ids'):

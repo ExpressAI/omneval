@@ -18,6 +18,8 @@ class BaseConfig(object):
         assert getattr(self, 'metrics') is not None, "evaluation metrics should be specified"
         self.eval_batch_size = getattr(self, 'eval_batch_size', 8)
         self.metrics_kwargs = getattr(self, 'metrics_kwargs', {})
+        self.max_seq_length = getattr(self, 'max_seq_length', 512)
+        self.label_name = getattr(self, 'label_name', 'label')
 
 
 class BaseProcessor(object):
@@ -27,11 +29,11 @@ class BaseProcessor(object):
         self.config = config    # task config
         self.raw_data = self.build_dataset()
         self.tokenizer = self.build_tokenizer()
-        self.label_name = getattr(self.config, 'label_name', 'label')
+        self.label_name = self.config.label_name
         self.padding_id = self.tokenizer.pad_token_id if self.tokenizer.pad_token_id is not None else 0
         self.mask_token = self.tokenizer.mask_token if self.tokenizer._mask_token is not None else self.tokenizer.unk_token
         self.mask_token_id = self.tokenizer.mask_token_id if self.tokenizer._mask_token is not None else self.tokenizer.unk_token_id
-        self.max_seq_length = getattr(self.config, "max_seq_length", 64)
+        self.max_seq_length = self.config.max_seq_length
 
     def build_dataset(self):
         """Import the raw dataset"""

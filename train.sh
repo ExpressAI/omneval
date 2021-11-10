@@ -1,4 +1,4 @@
-ARCHS="bert-base-uncased|bert-large-uncased|roberta-base|roberta-large|facebook/bart-base|facebook/bart-large"
-TASKS=$1
+ARCHS="bert-base-uncased|bert-large-uncased|roberta-base|roberta-large|facebook/bart-base|facebook/bart-large|openai-gpt|gpt2"
+TASKS=$2
 
-python main.py ${TASKS} --archs ${ARCHS}
+CUDA_VISIBLE_DEVICES=$1 python main.py ${TASKS} --archs ${ARCHS}

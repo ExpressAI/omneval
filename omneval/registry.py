@@ -1,6 +1,7 @@
 import argparse
 import importlib
 import os
+import pdb
 
 from omneval.tasks import BaseConfig, BaseProcessor, BaseEvaluator
 
@@ -12,7 +13,7 @@ METRICS_REGISTRY = {}
 def build_config(args, task):
     config = TASK_REGISTRY[task]()
     for k, v in vars(args).items():
-        if k not in ['tasks', 'archs']:
+        if k not in ['tasks', 'archs']and v is not None:
             setattr(config, k, v)
     config.task = task
     return config

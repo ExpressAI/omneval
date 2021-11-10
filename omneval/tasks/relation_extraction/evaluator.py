@@ -139,7 +139,7 @@ class GPTEvaluatorForRelationExtraction(BaseEvaluator):
                 candidate_ppls.append(torch.sum(loss, axis=0) / torch.sum(~shifted_tgt_ids.eq(-100), axis=-1))
             candidate_ppls = torch.stack(candidate_ppls).transpose(1, 0)
         prediction = {
-            'predictions': [candidate_labels[i] for i in candidate_ppls.argmax(dim=1).cpu().detach().numpy()],
+            'predictions': [candidate_labels[i] for i in candidate_ppls.argmin(dim=1).cpu().detach().numpy()],
             'inputs': batch['input_ids'].cpu().detach().tolist()
         }
         return prediction

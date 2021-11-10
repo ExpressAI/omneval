@@ -9,7 +9,7 @@ import collections
 
 
 BART_MODELS = ['facebook/bart-base', 'google/bert_for_seq_generation_L-24_bbc_encoder', 'facebook/bart-large',
-               't5-base', 'openai-gpt']
+               't5-base', 'openai-gpt', 'gpt2']
 
 
 
@@ -27,7 +27,7 @@ class BARTEvaluatorForClassification(BaseEvaluator):
 
         topk = kwargs.get('topk')
         with torch.no_grad():
-            outputs = self.model.generate(**batch, num_beams=1, early_stopping=True)
+            outputs = self.model.generate(**batch, num_beams=1, early_stopping=True, max_length=self.config.decode_max_length)
         pred = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
         predictions = {
             'predictions': pred,

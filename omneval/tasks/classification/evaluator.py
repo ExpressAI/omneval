@@ -109,7 +109,7 @@ class GPTEvaluatorForClassification(BaseEvaluatorForClassification):
                                      ignore_index=-100)
                 candidate_ppls.append(torch.sum(loss, axis=0) / torch.sum(~shifted_tgt_ids.eq(-100), axis=-1))
             candidate_ppls = torch.stack(candidate_ppls).transpose(1, 0)
-        max_tokens, max_indices = torch.topk(candidate_ppls, k=topk)
+        max_tokens, max_indices = torch.topk(candidate_ppls, k=topk, largest=False) # find tokens that achieves minimal PPLs
         max_label_idx, max_cand_idx = max_indices // candidate_num, max_indices % candidate_num
         prediction = {
             'predictions': [candidate_labels[i] for i in torch.mode(max_label_idx, -1)[0].cpu().detach().numpy()],

@@ -23,7 +23,11 @@ class SST2Config(BaseConfig):
     # Then the template is "<text> It was <mask>."
     templates = [
         'article|In Summary,||highlights',
+        'article|To Summarize,||highlights',
+        'article|To conclude,||highlights',
+        'Summarize:|article||highlights',
     ]
     # Optional: choose the majority class of highest-topk label candidates
     topk = 1
     eval_batch_size = 32
+    decode_max_length = 64
