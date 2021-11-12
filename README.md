@@ -1,6 +1,17 @@
 # omneval
 
 
+## Task Assignments
+- [x] Text Classification: Ziyun
+- [x] Relation Extraction: Ziyun
+- [x] NER: Jinlan
+- [ ] Chunk: Jinlan
+- [x] QA: Zhengbao
+- [x] Knowledge Probing: Zhengbao
+- [x] Text Summarization: Yiwei
+- [ ] Metric Evaluation: Weizhe
+
+
 ## Install
 ```shell
 pip install -r requirements.txt
