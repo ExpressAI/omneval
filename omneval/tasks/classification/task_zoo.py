@@ -72,7 +72,7 @@ class MNLIConfig(BaseConfig):
 
 @register_task('snli')
 class SNLIConfig(BaseConfig):
-    task = 'mnli'
+    task = 'snli'
     task_type = 'classification'
     dataset_name = ['snli']  # datasets.load_dataset('glue', 'sst2')
     metrics = 'accuracy'
@@ -95,6 +95,7 @@ class SNLIConfig(BaseConfig):
     remove_punc = True
     eval_batch_size = 32
     max_seq_length = 128
+
 
 @register_task('mrpc')
 class MRPC2Config(BaseConfig):
@@ -119,6 +120,7 @@ class MRPC2Config(BaseConfig):
     topk = 7
     eval_batch_size = 32
     max_seq_length = 128
+
 
 @register_task('qqp')
 class QQPConfig(BaseConfig):

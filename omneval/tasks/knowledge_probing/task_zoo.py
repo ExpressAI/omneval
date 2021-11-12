@@ -11,4 +11,6 @@ class LAMAConfig(BaseConfig):
     label_name = 'obj_label'
     eval_batch_size = 32
     templates = ['Specified for each sample']
+    max_seq_length = 128
+
 

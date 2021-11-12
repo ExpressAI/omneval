@@ -9,10 +9,11 @@ import pdb
 from transformers import GPT2Tokenizer, GPT2TokenizerFast
 import string
 
+
 warnings.filterwarnings('ignore')
 
 
-@register_processor('generation')
+@register_processor('question_answering')
 class ProcessorForGeneration(BaseProcessor):
 
     def __init__(self, config):
@@ -26,6 +27,18 @@ class ProcessorForGeneration(BaseProcessor):
 
     def prompt_schema(self, pid):
         return self.config.templates[pid]
+
+    def generate_dataset(self, pid=0):
+        """Prompting each instance and build dataset directly for the Evaluator"""
+        prompt_schema = self.config.templates[pid]
+        remove_columns = difference(self.raw_data.features.keys(), getattr(self.config, 'remain_columns', []))
+        calibrate_word = self.generate_calibrate_example(pid)
+        prompt_length = sum(calibrate_word['attention_mask'])
+        return self.raw_data.map(
+            lambda x: self.prompting(example=x,
+                                     prompt_schema=prompt_schema,
+                                     max_length=self.max_seq_length-prompt_length),
+                                     remove_columns=remove_columns)
 
     def _prompting(self, example, schema, max_length):
         text = ''

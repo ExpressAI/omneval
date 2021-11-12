@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 import logging
 from tqdm import tqdm
 import collections
-from omneval.utils import collate_fn, get_logits, pad_input_ids, difference, merge_fn
+from omneval.utils import collate_fn, get_logits, pad_input_ids, difference, merge_fn, adjust_length
 import pdb
 
 class BaseConfig(object):
@@ -31,9 +31,17 @@ class BaseProcessor(object):
         self.tokenizer = self.build_tokenizer()
         self.label_name = self.config.label_name
         self.padding_id = self.tokenizer.pad_token_id if self.tokenizer.pad_token_id is not None else 0
-        self.mask_token = self.tokenizer.mask_token if self.tokenizer._mask_token is not None else self.tokenizer.unk_token
-        self.mask_token_id = self.tokenizer.mask_token_id if self.tokenizer._mask_token is not None else self.tokenizer.unk_token_id
-        self.max_seq_length = self.config.max_seq_length
+        if not self.tokenizer._mask_token:
+            self.mask_token = '<mask>'
+            self.tokenizer.add_tokens([self.mask_token])
+            self.mask_token_id = self.tokenizer.convert_tokens_to_ids(self.mask_token)
+        else:
+            self.mask_token = self.tokenizer.mask_token
+            self.mask_token_id = self.tokenizer.mask_token_id
+
+        # self.mask_token = self.tokenizer.mask_token if self.tokenizer._mask_token is not None else self.tokenizer.unk_token
+        # self.mask_token_id = self.tokenizer.mask_token_id if self.tokenizer._mask_token is not None else self.tokenizer.unk_token_id
+        self.max_seq_length = adjust_length(self.config)
 
     def build_dataset(self):
         """Import the raw dataset"""
@@ -115,8 +123,13 @@ class BaseEvaluator(object):
         self.tokenizer = self.build_tokenizer()
         self.metrics_fn = load_metric(config.metrics)
         self.padding_id = self.tokenizer.pad_token_id if self.tokenizer.pad_token_id is not None else 0
-        self.mask_token = self.tokenizer.mask_token if self.tokenizer._mask_token is not None else self.tokenizer.unk_token
-        self.mask_token_id = self.tokenizer.mask_token_id if self.tokenizer._mask_token is not None else self.tokenizer.unk_token_id
+        if not self.tokenizer._mask_token:
+            self.mask_token = '<mask>'
+            self.tokenizer.add_tokens([self.mask_token])
+            self.mask_token_id = self.tokenizer.convert_tokens_to_ids(self.mask_token)
+        else:
+            self.mask_token = self.tokenizer.mask_token
+            self.mask_token_id = self.tokenizer.mask_token_id
         self.label_name = getattr(self.config, 'label_name', 'label')
 
 
@@ -165,6 +178,7 @@ class BaseEvaluator(object):
             batch = {k: v.to(self.device) for k, v in batch.items()}
             predictions = self.decode(batch, **kwargs)
             labels += label
+            # TODO: This can be optimized
             merge_fn(res, predictions)
         metrics = self.metrics_fn.compute(predictions=res['predictions'], references=labels, **self.config.metrics_kwargs)
         res['label'] = labels

@@ -3,6 +3,7 @@ import pdb
 import json
 import os
 import string
+from transformers import AutoConfig
 
 def collate_fn(batch, exclude=[]):
     if callable(getattr(batch, "keys", None)):
@@ -111,10 +112,10 @@ def normalize_raw_text_to_inputs(text, remove_punc=False):
     return text
 
 
-def append_templates_to_inputs(text, templates):
+def append_templates_to_inputs(text, templates, next_line=False):
     text = text.strip()
-    if text and templates not in string.punctuation:
-        text += ' '
+    if text and templates and templates[0] not in string.punctuation:
+        text += (' ' if not next_line else '\n')
     text += templates
     if text and text[-1] != ' ':
         text += ' '
@@ -132,3 +133,15 @@ def append_mask_token_to_inputs(text, mask_token, mask_length):
     else:
         text += mask_token * mask_length
     return text
+
+def adjust_length(config):
+    model_config = AutoConfig.from_pretrained(config.arch)
+    max_position_embeddings = model_config.max_position_embeddings
+    max_seq_length = min(config.max_seq_length, max_position_embeddings)
+    decode_seq_length = getattr(config, 'decode_max_length', 0)
+
+    if max_position_embeddings >= max_seq_length + decode_seq_length:
+        return max_seq_length
+    else:
+        return max_position_embeddings - decode_seq_length
+

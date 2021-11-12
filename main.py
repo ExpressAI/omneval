@@ -3,6 +3,7 @@ from omneval.registry import build_config, build_evaluator, build_processor
 from omneval.utils import init_eval_result, write_meta_eval_to_json, print_eval_result
 from omneval.config import get_args
 import logging
+import traceback
 logging.basicConfig(level=logging.INFO)
 
 
@@ -28,8 +29,10 @@ def main():
                         evaluator.write_inference_to_json(output, pid)
                     meta_eval['prompts'][pid]['results'].append(eval_result)
                     print_eval_result(eval_result, template)
-        except:
+        except Exception as e:
             print(arch, 'falied')
+            print(traceback.format_exc())
+
         write_meta_eval_to_json(meta_eval, config)
 
 
