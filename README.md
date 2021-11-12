@@ -3,6 +3,7 @@
 
 ## Task Assignments
 - [x] Text Classification: Ziyun
+- [x] Natural Language Inference: Ziyun
 - [x] Relation Extraction: Ziyun
 - [x] NER: Jinlan
 - [ ] Chunk: Jinlan
