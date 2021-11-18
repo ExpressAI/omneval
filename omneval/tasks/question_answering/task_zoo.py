@@ -28,7 +28,7 @@ class SST2Config(BaseConfig):
     ]
     # Optional: choose the majority class of highest-topk label candidates
     topk = 1
-    eval_batch_size = 16
+    eval_batch_size = 8
     decode_max_length = 10
     num_beams = 3
     max_seq_length = 512

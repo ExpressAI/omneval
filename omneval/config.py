@@ -1,6 +1,6 @@
 import argparse
 
-# TODO: need to fdind ways to combine task config and args
+# TODO: need to find ways to combine task config and args
 def get_args():
     parser = argparse.ArgumentParser(description='user settings for AutoEval')
     parser.add_argument("tasks", type=str, default='sst2')

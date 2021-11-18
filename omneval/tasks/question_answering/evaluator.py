@@ -29,7 +29,7 @@ class BaseEvaluatorForClassification(BaseEvaluator):
     def analysis(self, res_list):
         return {}
 
-    def eval(self, dataset, **kwargs):
+    def eval(self, dataset, metrics_fn, **kwargs):
         """
         (The only change is to retain id and change the format of labels and prediction)
         Generate the evaluation metrics and analysis (call: self.decode function)
@@ -54,8 +54,7 @@ class BaseEvaluatorForClassification(BaseEvaluator):
             predictions += prediction['predictions']
         predictions_squad_format = [{'id': id_, 'prediction_text': pred} for id_, pred in zip(ids, predictions)]
         label_squad_format = [{'id': id_, 'answers': answer} for id_, answer in zip(ids, labels)]
-        pdb.set_trace()
-        metrics = self.metrics_fn.compute(predictions=predictions_squad_format, references=label_squad_format, **self.config.metrics_kwargs)
+        metrics = metrics_fn.compute(predictions=predictions_squad_format, references=label_squad_format, **self.config.metrics_kwargs)
         res['label'] = labels
         res['id'] = ids
         res['predictions'] = predictions
@@ -97,6 +96,6 @@ class GPTEvaluatorForClassification(BaseEvaluatorForClassification):
         for i in range(len(preds)):
             new_pred.append(preds[i][len(source[i]): ])
         predictions = {
-            'predictions': preds,
+            'predictions': new_pred,
         }
         return predictions

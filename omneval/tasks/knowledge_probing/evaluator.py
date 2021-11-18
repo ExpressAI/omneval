@@ -10,7 +10,7 @@ import pdb
 BERT_MODELS = ['bert-base-uncased', 'roberta-base', 'bert-large-uncased', 'roberta-large', 'distilroberta-base',
                'distilbert-base-uncased']
 GPT_MODELS = ['openai-gpt', 'gpt2']
-BART_MODELS = ['facebook/bart-base', 'facebook/bart-large',]
+BART_MODELS = ['facebook/bart-base', 'facebook/bart-large','facebook/bart-large-cnn']
 
 
 @register_evaluator('knowledge_probing', BERT_MODELS+BART_MODELS)

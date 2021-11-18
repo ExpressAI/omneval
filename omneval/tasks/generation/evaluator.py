@@ -68,7 +68,7 @@ class GPTEvaluatorForClassification(BaseEvaluator):
         for i in range(len(preds)):
             new_pred.append(preds[i][len(source[i]): ])
         predictions = {
-            'predictions': preds,
+            'predictions': new_pred,
         }
         return predictions
 

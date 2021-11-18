@@ -12,7 +12,7 @@ class SST2Config(BaseConfig):
     # dataset_name = 'lama.json'  # datasets.load_dataset('json', 'lama.json')
     # dataset_name = 'lama '    # datasets.load_dataset('lama')
     # Required: The metrics used for this task
-    metrics = 'rouge'
+    metrics = 'rouge1'
     # Optional: The data split used for evaluation: default 'test'
     test_subset = 'test'
     label_name = 'highlights'

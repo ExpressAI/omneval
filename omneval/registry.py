@@ -2,8 +2,10 @@ import argparse
 import importlib
 import os
 import pdb
-
+from datasets import load_metric
 from omneval.tasks import BaseConfig, BaseProcessor, BaseEvaluator
+import logging
+import traceback
 
 TASK_REGISTRY = {}
 PROCESSOR_REGISTRY = {}
@@ -27,8 +29,20 @@ def build_evaluator(config):
     return EVALUATOR_REGISTRY[config.task_type][config.arch](config)
 
 
-def build_metrics(name):
-    return METRICS_REGISTRY[name]
+def build_metrics(config):
+    import omneval.metrics
+    name = config.metrics
+    if name in METRICS_REGISTRY:
+        metrics = METRICS_REGISTRY[name]()
+        logging.info('Import metrics %s from omneval.metrics')
+    else:
+        try:
+            metrics = load_metric(name)
+            logging.info('Import metrics %s from huggingface datasets.metrics'%name)
+        except Exception as e:
+            print(traceback.format_exc())
+            raise
+    return metrics
 
 
 def register_task(name):
@@ -104,7 +118,6 @@ def register_metrics(name):
         return fn
 
     return register_metrics_fn
-
 
 # automatically import any Python files in the models/ directory
 for file in os.listdir(os.path.join(os.path.dirname(__file__), 'tasks')):

@@ -105,11 +105,11 @@ class MRPC2Config(BaseConfig):
     test_subset = 'validation'
     metrics = 'f1'
     templates = [
-        'premise|?|<mask>|,|hypothesis|.|',
-        'premise|,|<mask>|,|hypothesis|.|',
-        'premise|!|<mask>|,|hypothesis|.|',
-        '<mask>|,|premise|.|hypothesis|.|',
-        '|premise|.|hypothesis|.|<mask>',
+        'sentence1|?|<mask>|,|sentence2|.|',
+        'sentence1|,|<mask>|,|sentence2|.|',
+        'sentence1|!|<mask>|,|sentence2|.|',
+        '<mask>|,|sentence1|.|sentence2|.|',
+        '|sentence1|.|sentence2|.|<mask>',
     ]
     labels = [0, 1]
     label_mappings = [
@@ -130,11 +130,11 @@ class QQPConfig(BaseConfig):
     test_subset = 'validation'
     metrics = 'f1'
     templates = [
-        'premise|?|<mask>|,|hypothesis|.|',
-        'premise|,|<mask>|,|hypothesis|.|',
-        'premise|!|<mask>|,|hypothesis|.|',
-        '<mask>|,|premise|.|hypothesis|.|',
-        '|premise|.|hypothesis|.|<mask>',
+        'question1|?|<mask>|,|question2|.|',
+        'question1|,|<mask>|,|question2|.|',
+        'question1|!|<mask>|,|question2|.|',
+        '<mask>|,|question1|.|question2|.|',
+        '|question1|.|question2|.|<mask>',
     ]
     labels = [0, 1]
     label_mappings = [

@@ -11,7 +11,7 @@ BERT_MODELS = ['bert-base-uncased', 'roberta-base', 'bert-large-uncased', 'rober
                'distilbert-base-uncased']
 GPT_MODELS = ['openai-gpt', 'gpt2']
 BART_MODELS = ['facebook/bart-base', 'google/bert_for_seq_generation_L-24_bbc_encoder', 'facebook/bart-large',
-               't5-base']
+               't5-base', 'facebook/bart-large-cnn']
 
 
 def collate_fn(batch):
