@@ -35,7 +35,7 @@ class GPTEvaluatorForClassification(BaseEvaluator):
         kwargs['topk'] = getattr(self.config, 'topk', 3)
         candidate_idx = kwargs['candidate_idx'].view(kwargs['candidate_idx'].shape[0], -1)    # num_labels * (mask_length1+2+3)
         candidate_idx_mask = kwargs['candidate_idx_mask'].view(kwargs['candidate_idx'].shape[0], -1)
-        # TODO: Not working for now
+        # TODO: calibration Not working for now
         res = kwargs.get('calibrate_input')
         if res:
             res = collate_fn(res)
@@ -59,7 +59,6 @@ class GPTEvaluatorForClassification(BaseEvaluator):
         mask_length = kwargs.get('mask_length')
         candidate_idx = candidate_idx.view(-1, mask_length) # num_labels * num_candidates, maske_length
         calibrate_logits = kwargs.get('calibrate_logits')
-        topk = kwargs.get('topk')
         candidate_ppls = []
         # Iterate over all possible candidates and calculate ppls
         with torch.no_grad():
@@ -88,7 +87,7 @@ class GPTEvaluatorForClassification(BaseEvaluator):
         return {}
 
 
-@register_evaluator('structure_prediction', BERT_MODELS+BART_MODELS)
+@register_evaluator('structure_prediction', BERT_MODELS)
 class BERTEvaluatorForClassification(BaseEvaluator):
     def build_model(self):
         return AutoModelForPreTraining.from_pretrained(self.config.arch).to(self.device)
@@ -152,11 +151,11 @@ class BERTEvaluatorForClassification(BaseEvaluator):
         return {}
 
 #
-# @register_evaluator('structure_prediction', BART_MODELS)
-# class BARTEvaluatorForClassification(BaseEvaluator):
-#
-#     def build_model(self):
-#         return AutoModelForSeq2SeqLM.from_pretrained(self.config.arch).to(self.device)
+@register_evaluator('structure_prediction', BART_MODELS)
+class BARTEvaluatorForClassification(BERTEvaluatorForClassification):
+
+    def build_model(self):
+        return AutoModelForSeq2SeqLM.from_pretrained(self.config.arch).to(self.device)
 #
 #     def preprocessing(self, dataset, **kwargs):
 #         kwargs['candidate_idx'] = kwargs.get('candidate_idx').to(self.device)

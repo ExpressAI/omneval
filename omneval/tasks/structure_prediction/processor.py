@@ -116,6 +116,7 @@ class ProcessorForStructurePrediction(BaseProcessor):
         return label_tokens
 
     def generate_aux_inputs(self, pid=0):
+        """ generate auxiliary input other than datasets"""
         candidate_labels = self.config.labels
         candidate_idx = torch.LongTensor(self.labels_ids)
         candidate_idx_mask = torch.LongTensor(self.labels_masks)

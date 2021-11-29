@@ -35,6 +35,7 @@ class SemEvalConfig(BaseConfig):
     # Required: prompt template:
     # e.g  `sentence` is the column name for the raw text "It was" and "." are templates, <mask> is the masked poition
     # Then the template is "<text> It was <mask>." <e> is for the entity tokens
+    # ex: Obama was the president of USA. Obama is the [mask] word of [mask] entity. (ans: beginning, person)
     templates = [
         'sentence|<e>|is the|<mask>|word of |<mask>|entity.',
     ]
