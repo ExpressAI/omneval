@@ -1,24 +1,17 @@
-import torch
 import warnings
-from omneval.tasks import BaseProcessor
 from omneval.utils import difference, pad_input_ids, normalize_raw_text_to_inputs, truncate_text, append_templates_to_inputs
 from omneval.registry import register_processor
 from .. import BaseProcessor
-import logging
-import pdb
-from transformers import GPT2Tokenizer, GPT2TokenizerFast
-import string
-
 
 warnings.filterwarnings('ignore')
 
 
 @register_processor('question_answering')
-class ProcessorForGeneration(BaseProcessor):
+class ProcessorForGenerateQA(BaseProcessor):
 
     def __init__(self, config):
         assert hasattr(config, 'templates'), "prompt templates should be specified."
-        super(ProcessorForGeneration, self).__init__(config)
+        super(ProcessorForGenerateQA, self).__init__(config)
         self.remove_punc = getattr(self.config, "remove_punc", False)
 
     @property
@@ -63,5 +56,4 @@ class ProcessorForGeneration(BaseProcessor):
         res = self.tokenizer(encoder_text.strip())
         res = pad_input_ids(res, self.max_seq_length, self.padding_id)
         return res
-
 

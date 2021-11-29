@@ -2,13 +2,13 @@ import argparse
 import importlib
 import os
 import torch
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, T5Tokenizer, T5TokenizerFast
 from datasets import load_dataset
 from torch.utils.data import DataLoader
 import logging
 from tqdm import tqdm
 import collections
-from omneval.utils import collate_fn, get_logits, pad_input_ids, difference, merge_fn, adjust_length
+from omneval.utils import collate_fn, get_logits, pad_input_ids, difference, merge_fn, adjust_length, get_masked_tokens
 import pdb
 
 
@@ -32,16 +32,7 @@ class BaseProcessor(object):
         self.tokenizer = self.build_tokenizer()
         self.label_name = self.config.label_name
         self.padding_id = self.tokenizer.pad_token_id if self.tokenizer.pad_token_id is not None else 0
-        if not self.tokenizer._mask_token:
-            self.mask_token = '<mask>'
-            self.tokenizer.add_tokens([self.mask_token])
-            self.mask_token_id = self.tokenizer.convert_tokens_to_ids(self.mask_token)
-        else:
-            self.mask_token = self.tokenizer.mask_token
-            self.mask_token_id = self.tokenizer.mask_token_id
-
-        # self.mask_token = self.tokenizer.mask_token if self.tokenizer._mask_token is not None else self.tokenizer.unk_token
-        # self.mask_token_id = self.tokenizer.mask_token_id if self.tokenizer._mask_token is not None else self.tokenizer.unk_token_id
+        self.mask_token, self.mask_token_id = get_masked_tokens(config, self.tokenizer)
         self.max_seq_length = adjust_length(self.config)
 
     def build_dataset(self):
@@ -67,9 +58,22 @@ class BaseProcessor(object):
             assert callable(filter_fn)
         try:
             df = df.filter(filter_fn)
-            logging.info("Use filter_fn to filter the dataset, got %d examples" % (df.num_rows))
+            logging.info("Use config.filter_fn to filter the dataset, got %d examples" % (df.num_rows))
         except:
-            logging.info("No filter_fn or filter_fn not valid, use the original data, got %d examples" % (df.num_rows))
+            logging.info("No config.filter_fn or config.filter_fn not valid, use the original data, got %d examples" % (df.num_rows))
+
+        # Options for user-defined dataset modifications
+        if hasattr(self.config, 'data_preprocessing'):
+
+            data_preprocessing = getattr(self.config, 'data_preprocessing', None)
+            assert callable(data_preprocessing)
+        try:
+            df = data_preprocessing(df)
+            logging.info("Use config.data_preprocessing to preprocess the dataset, got %d examples" % (df.num_rows))
+        except:
+            logging.info("No config.data_preprocessing or config.data_preprocessing not valid, "
+                         "use the original data, got %d examples" % (df.num_rows))
+
         return df
 
     def build_tokenizer(self):
@@ -123,13 +127,7 @@ class BaseEvaluator(object):
         self.model = self.build_model()
         self.tokenizer = self.build_tokenizer()
         self.padding_id = self.tokenizer.pad_token_id if self.tokenizer.pad_token_id is not None else 0
-        if not self.tokenizer._mask_token:
-            self.mask_token = '<mask>'
-            self.tokenizer.add_tokens([self.mask_token])
-            self.mask_token_id = self.tokenizer.convert_tokens_to_ids(self.mask_token)
-        else:
-            self.mask_token = self.tokenizer.mask_token
-            self.mask_token_id = self.tokenizer.mask_token_id
+        self.mask_token, self.mask_token_id = get_masked_tokens(config, self.tokenizer)
         self.label_name = getattr(self.config, 'label_name', 'label')
 
     def build_model(self):
@@ -167,12 +165,12 @@ class BaseEvaluator(object):
         self.model.eval()
         dataset, kwargs = self.preprocessing(dataset, **kwargs)
         dataloader = DataLoader(dataset, batch_size=self.config.eval_batch_size,
-                                collate_fn=lambda x: collate_fn(x, exclude=[self.label_name]))
+                                collate_fn=lambda x: collate_fn(x, exclude=self.exclude_collate_features))
         labels = []
         res = collections.defaultdict(list)
         for batch in tqdm(dataloader):
             label = batch.pop(self.label_name)
-            batch = {k: v.to(self.device) for k, v in batch.items()}
+            batch = {k: v.to(self.device) if k not in self.exclude_collate_features else v for k, v in batch.items()}
             predictions = self.decode(batch, **kwargs)
             labels += label
             # TODO: This can be optimized
@@ -190,8 +188,9 @@ class BaseEvaluator(object):
         return res_list, eval_result
 
     def write_inference_to_json(self, res, pid):
+        template = self.config.templates[pid]
         arch = self.config.arch.split('/')[-1]
-        output_filename = self.config.task + '_' + arch + '_' + str(pid) + '.json'
+        output_filename = self.config.task + '_' + arch + '_' + template + '.json'
         output_filename = os.path.join(self.config.out_dir, output_filename)
         with open(output_filename, 'w') as f:
             for row in res:
@@ -202,3 +201,8 @@ class BaseEvaluator(object):
 
     def analysis(self, res_list):
         return {}
+
+    @property
+    def exclude_collate_features(self):
+        return [self.label_name]
+

@@ -123,3 +123,5 @@ def register_metrics(name):
 for file in os.listdir(os.path.join(os.path.dirname(__file__), 'tasks')):
     if not file.endswith('.py') and not file.startswith('_'):
         module = importlib.import_module('omneval.tasks.' + file)
+
+module = importlib.import_module('omneval.test')

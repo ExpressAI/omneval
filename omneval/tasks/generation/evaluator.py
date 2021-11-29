@@ -6,6 +6,7 @@ from transformers import AutoTokenizer, AutoModelForPreTraining, AutoModelForCau
 from torch.nn.functional import cross_entropy
 import pdb
 import collections
+from omneval.utils import BERT_MODELS, GPT_MODELS, BART_MODELS, T5_MODELS
 
 
 GPT_MODELS = ['openai-gpt', 'gpt2']
@@ -13,7 +14,7 @@ BART_MODELS = ['facebook/bart-base', 'facebook/bart-large','facebook/bart-large-
 
 
 
-@register_evaluator('generation', BART_MODELS)
+@register_evaluator('generation', BART_MODELS+T5_MODELS)
 class BARTEvaluatorForClassification(BaseEvaluator):
 
     def build_model(self):

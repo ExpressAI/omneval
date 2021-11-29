@@ -8,13 +8,14 @@ import pdb
 import collections
 from torch.utils.data import DataLoader
 import logging
+from omneval.utils import BERT_MODELS, GPT_MODELS, BART_MODELS, T5_MODELS
 from tqdm import tqdm
+#
+# GPT_MODELS = ['openai-gpt', 'gpt2']
+# BART_MODELS = ['facebook/bart-base', 'facebook/bart-large','facebook/bart-large-cnn']
+#
 
-GPT_MODELS = ['openai-gpt', 'gpt2']
-BART_MODELS = ['facebook/bart-base', 'facebook/bart-large','facebook/bart-large-cnn']
-
-
-class BaseEvaluatorForClassification(BaseEvaluator):
+class BaseEvaluatorForGenerateQA(BaseEvaluator):
 
     def build_model(self):
         return AutoModelForPreTraining.from_pretrained(self.config.arch).to(self.device)
@@ -68,8 +69,8 @@ class BaseEvaluatorForClassification(BaseEvaluator):
         return res_list, eval_result
 
 
-@register_evaluator('question_answering', BART_MODELS)
-class BARTEvaluatorForClassification(BaseEvaluatorForClassification):
+@register_evaluator('question_answering', BART_MODELS+T5_MODELS)
+class BARTEvaluatorForGenerateQA(BaseEvaluatorForGenerateQA):
 
     def decode(self, batch, **kwargs):
         with torch.no_grad():
@@ -82,7 +83,7 @@ class BARTEvaluatorForClassification(BaseEvaluatorForClassification):
 
 
 @register_evaluator('question_answering', GPT_MODELS)
-class GPTEvaluatorForClassification(BaseEvaluatorForClassification):
+class GPTEvaluatorForGenerateQA(BaseEvaluatorForGenerateQA):
 
     def decode(self, batch, **kwargs):
         with torch.no_grad():

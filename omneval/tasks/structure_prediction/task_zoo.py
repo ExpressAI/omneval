@@ -1,5 +1,18 @@
 from omneval.tasks import BaseConfig
 from omneval.registry import register_task
+from omneval.utils import make_sentence
+import pandas as pd
+from datasets import Dataset
+
+
+def processing_conll2003(config, data):
+    examples = []
+    for item in data:
+        sentence = make_sentence(item['tokens'])
+        for token, tag in zip(item['tokens'], item['ner_tags']):
+            examples.append({'sentence': sentence, 'token': token.lower(), 'label': tag})
+    return Dataset.from_pandas(pd.DataFrame(examples))
+
 
 @register_task('conll2003')
 class SemEvalConfig(BaseConfig):
@@ -12,16 +25,16 @@ class SemEvalConfig(BaseConfig):
     dataset_name = 'conll2003'  # datasets.load_dataset('glue', 'sst2')
     # dataset_name = 'lama.json'  # datasets.load_dataset('json', 'lama.json')
     # dataset_name = 'lama '    # datasets.load_dataset('lama')
-    # Required: The metrics used for this task
+    # Required: The metrics used for this task, using metrics in huggingface.Metrics or defined metrics in metrics.py
     metrics = 'f1'
     metrics_kwargs = {'average': 'micro'}
     # Optional: The data split used for evaluation: default 'test'
     test_subset = 'test'
 
-    # Below are parameters for text classification
+    # Below are parameters for text classification/structural prediction
     # Required: prompt template:
     # e.g  `sentence` is the column name for the raw text "It was" and "." are templates, <mask> is the masked poition
-    # Then the template is "<text> It was <mask>."
+    # Then the template is "<text> It was <mask>." <e> is for the entity tokens
     templates = [
         'sentence|<e>|is the|<mask>|word of |<mask>|entity.',
     ]
@@ -43,3 +56,4 @@ class SemEvalConfig(BaseConfig):
     label_name = 'label'
     sentence_label = 'sentence'
     remove_punc = False
+    data_preprocessing = processing_conll2003

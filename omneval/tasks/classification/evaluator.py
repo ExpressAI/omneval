@@ -1,17 +1,14 @@
 import torch
 from omneval.tasks import BaseEvaluator
-from omneval.utils import get_logits, collate_fn
+from omneval.utils import get_logits, collate_fn, merge_fn
 from omneval.registry import register_evaluator
 from transformers import AutoTokenizer, AutoModelForPreTraining, AutoModelForCausalLM, AutoModelForSeq2SeqLM
 from torch.nn.functional import cross_entropy
 import collections
 import pdb
-
-BERT_MODELS = ['bert-base-uncased', 'roberta-base', 'bert-large-uncased', 'roberta-large', 'distilroberta-base',
-               'distilbert-base-uncased']
-GPT_MODELS = ['openai-gpt', 'gpt2']
-BART_MODELS = ['facebook/bart-base', 'google/bert_for_seq_generation_L-24_bbc_encoder', 'facebook/bart-large',
-               't5-base', 'facebook/bart-large-cnn']
+from omneval.utils import BERT_MODELS, GPT_MODELS, BART_MODELS, T5_MODELS
+from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 
 class BaseEvaluatorForClassification(BaseEvaluator):
@@ -19,34 +16,25 @@ class BaseEvaluatorForClassification(BaseEvaluator):
         kwargs['candidate_idx'] = kwargs.get('candidate_idx').to(self.device)
         kwargs['candidate_idx_mask'] = kwargs.get('candidate_idx_mask').to(self.device)
         kwargs['mask_length'] = kwargs['candidate_idx'].shape[-1]
-        kwargs['topk'] = getattr(self.config, 'topk', 3)
+        num_answers_per_label =  kwargs['candidate_idx'].shape[1]
+        num_labels = kwargs['candidate_idx'].shape[0]
+        kwargs['topk'] = getattr(self.config, 'topk', num_labels * (num_answers_per_label//3)+1)
         candidate_idx = kwargs['candidate_idx'].view(-1, kwargs['mask_length']) # num_labels * num_candidates, maske_length
         candidate_idx_mask = kwargs['candidate_idx_mask'].view(-1, kwargs['mask_length'])
         calibrate_input = kwargs.get('calibrate_input')
         # TODO: The Calibrate option not well defined for GPT models
         if calibrate_input:
-            kwargs['calibrate_logits'] = self.caculate_calibrate_logits(calibrate_input, **kwargs)
-            calibrate_input = collate_fn(calibrate_input)
-            calibrate_input = {k: v.to(self.device) for k, v in calibrate_input.items()}
-            mask_pos = calibrate_input.pop('mask_pos')
-            with torch.no_grad():
-                outputs = self.model(**calibrate_input)
-            logits = get_logits(outputs)
-            mask_logits = logits[mask_pos > 0].view(-1, kwargs['mask_length'], logits.shape[-1])
-            mask_logits = torch.nn.functional.log_softmax(mask_logits, dim=-1)
-            candidate_logits = torch.stack(
-                [mask_logits[:, i, :].index_select(-1, candidate_idx[:, i]) for i in range(kwargs['mask_length'])], dim=1)
-            kwargs['calibrate_logits'] = torch.sum(torch.mul(candidate_logits, candidate_idx_mask.T.float()), dim=1)/torch.sum(candidate_idx_mask, dim=-1)
-
+            kwargs['calibrate_logits'] = self.caculate_calibrate_logits(**kwargs)
         return dataset, kwargs
 
-    def caculate_calibrate_logits(self, calibrate_input, **kwargs):
+    def caculate_calibrate_logits(self, **kwargs):
         candidate_idx = kwargs['candidate_idx'].view(-1, kwargs['mask_length']) # num_labels * num_candidates, maske_length
         candidate_idx_mask = kwargs['candidate_idx_mask'].view(-1, kwargs['mask_length'])
         calibrate_input = kwargs.get('calibrate_input')
         calibrate_input = collate_fn(calibrate_input)
         calibrate_input = {k: v.to(self.device) for k, v in calibrate_input.items()}
         mask_pos = calibrate_input.pop('mask_pos')
+        label = calibrate_input.pop(self.label_name)
         with torch.no_grad():
             outputs = self.model(**calibrate_input)
         logits = get_logits(outputs)
@@ -66,13 +54,9 @@ class BaseEvaluatorForClassification(BaseEvaluator):
         return prediction
 
     def analysis(self, predictions):
-        memo1 = collections.Counter()
         memok = collections.Counter()
-        memo_all = collections.Counter()
         for item in predictions:
-            memo1.update(item['topk_tokens'][:1])
-            memok.update(item['topk_tokens'][:self.config.topk])
-            memo_all.update(item['topk_tokens'])
+            memok.update(item['topk_tokens'])
         return {'top5 choices': [item[0] for item in memok.most_common(5)],
                 'calibrated': self.config.calibrate}
 
@@ -192,3 +176,63 @@ class BARTEvaluatorForClassification(BaseEvaluatorForClassification):
             'inputs': batch['input_ids'].cpu().detach().tolist()
         }
         return predictions
+
+
+@register_evaluator('classification', T5_MODELS)
+class T5EvaluatorForClassification(BaseEvaluatorForClassification):
+
+    def build_model(self):
+        return AutoModelForSeq2SeqLM.from_pretrained(self.config.arch).to(self.device)
+
+    def decode(self, batch, **kwargs):
+        mask_pos = batch.pop('mask_pos')
+        candidate_idx = kwargs.get('candidate_idx')
+        candidate_labels = kwargs.get('candidate_labels')
+        mask_length = kwargs.get('mask_length')
+        candidate_idx_mask = kwargs.get('candidate_idx_mask')
+        candidate_num = candidate_idx.shape[1]
+        candidate_idx = candidate_idx.view(-1, mask_length) # num_labels * num_candidates, maske_length
+        candidate_idx_mask = candidate_idx_mask.view(-1, mask_length)
+        calibrate_logits = kwargs.get('calibrate_logits')
+        batch['labels'] = torch.ones((batch['input_ids'].shape[0], 1+mask_length), dtype=torch.long).to(self.device) * self.mask_token_id
+
+        topk = kwargs.get('topk')
+        with torch.no_grad():
+            outputs = self.model(**batch)
+        logits = get_logits(outputs)
+        mask_logits = logits[:, 1: , :].view(-1, mask_length, logits.shape[-1])
+        mask_logits = torch.nn.functional.log_softmax(mask_logits, dim=-1)
+        candidate_logits = torch.stack(
+            [mask_logits[:, i, :].index_select(-1, candidate_idx[:, i]) for i in range(mask_length)], dim=1)
+        candidate_logits = torch.sum(torch.mul(candidate_logits, candidate_idx_mask.T.float()), dim=1)/torch.sum(candidate_idx_mask, dim=-1)
+        if calibrate_logits is not None:
+            candidate_logits -= calibrate_logits
+        max_tokens, max_indices = torch.topk(candidate_logits, k=topk)
+        max_label_idx, max_cand_idx = max_indices // candidate_num, max_indices % candidate_num
+        predictions = {
+            'predictions': [candidate_labels[i] for i in torch.mode(max_label_idx, -1)[0].cpu().detach().numpy()],
+            'topk_tokens':  candidate_idx[max_indices].cpu().detach().tolist(),
+            'inputs': batch['input_ids'].cpu().detach().tolist()
+        }
+        return predictions
+
+    def caculate_calibrate_logits(self, **kwargs):
+        candidate_idx = kwargs['candidate_idx'].view(-1, kwargs['mask_length']) # num_labels * num_candidates, maske_length
+        candidate_idx_mask = kwargs['candidate_idx_mask'].view(-1, kwargs['mask_length'])
+        calibrate_input = kwargs.get('calibrate_input')
+        calibrate_input = collate_fn(calibrate_input)
+        calibrate_input = {k: v.to(self.device) for k, v in calibrate_input.items()}
+        mask_pos = calibrate_input.pop('mask_pos')
+        mask_length = kwargs.get('mask_length')
+        label = calibrate_input.pop('label')
+        calibrate_input['labels'] = torch.ones((calibrate_input['input_ids'].shape[0], 1+mask_length), dtype=torch.long).to(self.device) * self.mask_token_id
+        with torch.no_grad():
+            outputs = self.model(**calibrate_input)
+        logits = get_logits(outputs)
+        mask_logits = logits[:, 1: , :].view(-1, mask_length, logits.shape[-1])
+        mask_logits = torch.nn.functional.log_softmax(mask_logits, dim=-1)
+        candidate_logits = torch.stack(
+            [mask_logits[:, i, :].index_select(-1, candidate_idx[:, i]) for i in range(kwargs['mask_length'])], dim=1)
+        kwargs['calibrate_logits'] = torch.sum(torch.mul(candidate_logits, candidate_idx_mask.T.float()),
+                                               dim=1) / torch.sum(candidate_idx_mask, dim=-1)
+

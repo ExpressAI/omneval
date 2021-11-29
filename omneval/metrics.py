@@ -24,9 +24,13 @@ class EaasMetrics(BaseMetrics):
             inputs = [{'source': '', 'references': ref if isinstance(ref, list) else [ref], 'hypothesis': pred}
                       for pred, ref in zip(predictions, references)]
         else:
-            inputs = [{'source':src, 'references': ref if isinstance(ref, list) else [ref], 'hypothesis': pred}
+            inputs = [{'source': src, 'references': ref if isinstance(ref, list) else [ref], 'hypothesis': pred}
                     for pred, ref, src in zip(predictions, references, source)]
-        return self.client.score(inputs, task="sum", metrics=self.metrics, lang='en')
+        res = self.client.score(inputs, task="sum", metrics=self.metrics, lang='en')
+        return self.postprocess(res)
+
+    def postprocess(self, res):
+        return res
 
 
 @register_metrics('rouge1')
@@ -34,8 +38,14 @@ class Rouge1(EaasMetrics):
     def __init__(self, metrics=('rouge1',), config=Config(), client=Client()):
         super().__init__(metrics, config, client)
 
+    def postprocess(self, res):
+        return {'rouge1': res['corpus_level']['corpus_rouge_1']}
+
 
 @register_metrics('rouge2')
 class Rouge2(EaasMetrics):
     def __init__(self, metrics=('rouge2',), config=Config(), client=Client()):
         super(Rouge2).__init__(metrics, config, client)
+
+    def postprocess(self, res):
+        return {'rouge2': res['corpus_level']['corpus_rouge_2']}

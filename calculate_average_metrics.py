@@ -9,7 +9,7 @@ parser.add_argument("--out_dir", type=str, default='results')
 parser.add_argument("--metrics", type=str, default='accuracy')
 args = parser.parse_args()
 
-with open(args.out_dir+'/meta22_%s.json'%args.task, 'r') as f:
+with open(args.out_dir+'/meta_%s.json'%args.task, 'r') as f:
     df = json.load(f)
 memo = collections.defaultdict(list)
 for item in df['prompts']:

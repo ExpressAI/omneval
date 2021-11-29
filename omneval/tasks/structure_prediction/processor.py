@@ -2,24 +2,9 @@ import torch
 import warnings
 from omneval.tasks import BaseProcessor
 from omneval.utils import difference, pad_input_ids, normalize_raw_text_to_inputs, truncate_text, \
-    append_templates_to_inputs, append_mask_token_to_inputs
+    append_templates_to_inputs, append_mask_token_to_inputs, check_if_bpe_tokenizer, make_sentence
 from omneval.registry import register_processor
-import logging
-import pdb
-from transformers import GPT2Tokenizer, GPT2TokenizerFast
-import string
-from datasets import Dataset
-import pandas as pd
-import re
 warnings.filterwarnings('ignore')
-
-def make_sentence(l):
-    text = ''
-    for idx, token in enumerate(l):
-        if token not in string.punctuation:
-            text += ' '
-        text += token.lower()
-    return text.strip()
 
 
 
@@ -39,14 +24,6 @@ class ProcessorForStructurePrediction(BaseProcessor):
     def prompt_schema(self, pid):
         return self.config.templates[pid]
 
-    def build_dataset(self):
-        df = super(ProcessorForStructurePrediction, self).build_dataset()
-        examples = []
-        for item in df:
-            sentence = make_sentence(item['tokens'])
-            for token, tag in zip(item['tokens'], item['ner_tags']):
-                examples.append({'sentence': sentence, 'token': token.lower(), 'label': tag})
-        return Dataset.from_pandas(pd.DataFrame(examples))
 
     def generate_dataset(self, pid=0):
         """Prompting each instance and build dataset directly for the Evaluator"""
@@ -109,7 +86,8 @@ class ProcessorForStructurePrediction(BaseProcessor):
 
         :return: [[[372], [205]], [[1099], [6587]]] like this
         """
-        # create label token matrices
+        # create label token matrices， if answers are of different length, we pad answer tokens to the same length and
+        # use labels_masks to mask padded position(exclude them in probability/ppl calculation)
         mask_length = [0, 0]
         labels_ids = []
         for class_labels in self.get_label_tokens():
@@ -131,7 +109,7 @@ class ProcessorForStructurePrediction(BaseProcessor):
 
     def get_label_tokens(self):
         # For GPT2 tokenizers, we should add a space before each word.
-        if isinstance(self.tokenizer, GPT2Tokenizer) or isinstance(self.tokenizer, GPT2TokenizerFast):
+        if check_if_bpe_tokenizer(self.tokenizer):
             label_tokens = [[' '+l.lower() for l in labels] for labels in self.config.label_mappings]
         else:
             label_tokens = self.config.label_mappings

@@ -12,5 +12,6 @@ class LAMAConfig(BaseConfig):
     eval_batch_size = 32
     templates = ['Specified for each sample']
     max_seq_length = 128
+    vocab_file = '/home/pliu3/vincent1rookie/code/omneval/lama.vocab'
 
 

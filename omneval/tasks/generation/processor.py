@@ -1,13 +1,7 @@
-import torch
 import warnings
-from omneval.tasks import BaseProcessor
 from omneval.utils import difference, pad_input_ids, normalize_raw_text_to_inputs, truncate_text, append_templates_to_inputs
 from omneval.registry import register_processor
 from .. import BaseProcessor
-import logging
-import pdb
-from transformers import GPT2Tokenizer, GPT2TokenizerFast
-import string
 
 warnings.filterwarnings('ignore')
 
