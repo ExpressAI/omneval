@@ -214,12 +214,12 @@ class RTEConfig(BaseConfig):
     templates_answers_mapping = [0, 0, 0, 1, 1, 2, 2]
     label_mappings = [
     [
-        ['No','Instead', 'But', 'Otherwise', 'Yet', 'Except', 'However', 'Rather'],
         ['Yes', 'Exactly', 'Right', 'Absolutely', 'Yeah', 'Therefore', 'Definitely', 'Indeed'],
+        ['No','Instead', 'But', 'Otherwise', 'Yet', 'Except', 'However', 'Rather'],
     ],
     [
-        ['opposite', 'different', 'opposed', 'counter', 'anti', 'against'],
         ['associated', 'linked', 'related', 'equal', 'similar', 'like'],
+        ['opposite', 'different', 'opposed', 'counter', 'anti', 'against'],
     ],
     [
         ['true', 'exact', 'right', 'correct', 'real', 'precise', 'valid'],

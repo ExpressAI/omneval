@@ -58,18 +58,16 @@ class ProcessorForMultipleChoiceClassification(BaseProcessor):
             if item == '<mask>':
                 text = append_mask_token_to_inputs(text, self.mask_token, mask_length)
             elif item in example and isinstance(example[item], str):
-                appended_text = normalize_raw_text_to_inputs(example[item], self.remove_punc)
-                appended_text, appended_length = truncate_text(appended_text, self.tokenizer, max_length-text_length_cnt)
+                appended_text = normalize_raw_text_to_inputs(text=example[item], remove_punc=self.remove_punc, lowercase=False)
                 if item == self.mask_replace_column:
                     mask_tokens = self.mask_token * mask_length
                     appended_text = replace_tokens_to_mask(appended_text, self.mask_replace_token, mask_tokens)
-                    appended_length += mask_length
-                text_length_cnt += appended_length
+                # TODO: Need to avoid the situation that the masked position is
                 text += appended_text
             # for prompting templates
             else:
                 text = append_templates_to_inputs(text, item)
-        res = self.tokenizer(text.strip())
+        res = self.tokenizer(text.strip(), max_length=max_length)
         text_len = len(res['input_ids'])
         res = pad_input_ids(res, self.max_seq_length, self.padding_id)
         res['mask_pos'] = [0] * self.max_seq_length

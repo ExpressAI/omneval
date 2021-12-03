@@ -127,14 +127,38 @@ class T5EvaluatorFor(BaseEvaluatorForMultipleChoice):
 
     def decode(self, batch, **kwargs):
         mask_pos = batch.pop('mask_pos')
-        candidate_idx = kwargs.get('candidate_idx')
+        candidate_idx = batch.pop('labels_ids')
+        candidate_idx_mask = batch.pop('labels_masks')
         candidate_labels = kwargs.get('candidate_labels')
-        mask_length = kwargs.get('mask_length')
-        candidate_idx_mask = kwargs.get('candidate_idx_mask')
-        candidate_num = candidate_idx.shape[1]
-        candidate_idx = candidate_idx.view(-1, mask_length)  # num_labels * num_candidates, maske_length
-        candidate_idx_mask = candidate_idx_mask.view(-1, mask_length)
-        calibrate_logits = kwargs.get('calibrate_logits')
+        mask_length = batch.pop('mask_length')
+        with torch.no_grad():
+            outputs = self.model(**batch)
+        logits = get_logits(outputs)
+        candidate_logits = []
+        for idx, logit in enumerate(logits):
+            masked = mask_pos[idx]
+            cand = torch.tensor(candidate_idx[idx]).to(self.device)
+            cand_mask = torch.tensor(candidate_idx_mask[idx]).to(self.device)
+            mask_logit = logit[masked > 0].view(mask_length[idx], logit.shape[-1])
+            mask_logit = torch.nn.functional.log_softmax(mask_logit, dim=-1)
+            candidate_logit = torch.stack(
+                [mask_logit[i, :].index_select(-1, cand[:, i]) for i in range(mask_length[idx])], dim=1)
+            candidate_logit = torch.sum(torch.mul(candidate_logit, cand_mask.float()), dim=1) / torch.sum(
+                cand_mask, dim=-1)
+            candidate_logits.append(candidate_logit)
+        candidate_logits = torch.stack(candidate_logits)
+        predictions = {
+            'predictions': [candidate_labels[i] for i in torch.argmax(candidate_logits, dim=-1).cpu().detach().numpy()],
+            'inputs': batch['input_ids'].cpu().detach().tolist()
+        }
+        return predictions
+    def decode(self, batch, **kwargs):
+        mask_pos = batch.pop('mask_pos')
+        candidate_idx = batch.pop('labels_ids')
+        candidate_idx_mask = batch.pop('labels_masks')
+        candidate_labels = kwargs.get('candidate_labels')
+        mask_length = batch.pop('mask_length')
+        candidate_num = len(candidate_labels)
         batch['labels'] = torch.ones((batch['input_ids'].shape[0], 1 + mask_length), dtype=torch.long).to(
             self.device) * self.mask_token_id
 

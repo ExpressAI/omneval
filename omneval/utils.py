@@ -137,8 +137,10 @@ def print_eval_result(eval_results, template=None):
         print(k, ":", v)
 
 
-def normalize_raw_text_to_inputs(text, remove_punc=False):
-    text = text.strip().lower()
+def normalize_raw_text_to_inputs(text, remove_punc=False, lowercase=True):
+    # TODO: Need to think that why we need to lowercase all words
+    if lowercase:
+        text = text.strip().lower()
     # if cur_text and cur_text.strip()[-1] not in string.punctuation:
     #     append_text = append_text.lower()
     # else:
