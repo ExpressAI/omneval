@@ -53,6 +53,7 @@ class BaseEvaluatorForGenerateQA(BaseEvaluator):
             labels += label
             ids += id_
             predictions += prediction['predictions']
+        # TODO: need to modify this part
         predictions_squad_format = [{'id': id_, 'prediction_text': pred} for id_, pred in zip(ids, predictions)]
         label_squad_format = [{'id': id_, 'answers': answer} for id_, answer in zip(ids, labels)]
         metrics = metrics_fn.compute(predictions=predictions_squad_format, references=label_squad_format, **self.config.metrics_kwargs)

@@ -175,7 +175,8 @@ class BaseEvaluator(object):
             labels += label
             # TODO: This can be optimized
             merge_fn(res, predictions)
-        metrics = metrics_fn.compute(predictions=res['predictions'], references=labels,
+        predictions = self.process_predictions_for_metrics(res)
+        metrics = metrics_fn.compute(predictions=predictions, references=labels,
                                     **self.config.metrics_kwargs)
         res['label'] = labels
         res_list = []
@@ -186,6 +187,9 @@ class BaseEvaluator(object):
         eval_result.update(metrics)
         eval_result.update(self.analysis(res_list))
         return res_list, eval_result
+
+    def process_predictions_for_metrics(self, res):
+        return res['predictions']
 
     def write_inference_to_json(self, res, pid):
         template = self.config.templates[pid]

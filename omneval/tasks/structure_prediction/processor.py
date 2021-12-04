@@ -4,6 +4,7 @@ from omneval.tasks import BaseProcessor
 from omneval.utils import difference, pad_input_ids, normalize_raw_text_to_inputs, truncate_text, \
     append_templates_to_inputs, append_mask_token_to_inputs, check_if_bpe_tokenizer, make_sentence
 from omneval.registry import register_processor
+import pdb
 warnings.filterwarnings('ignore')
 
 
@@ -14,7 +15,6 @@ class ProcessorForStructurePrediction(BaseProcessor):
         assert hasattr(config, 'templates'), "prompt templates should be specified."
         assert hasattr(config, 'label_mappings'), "label mappings should be specified."
         super(ProcessorForStructurePrediction, self).__init__(config)
-        self.labels_ids, self.labels_masks, self.mask_length = self.convert_verbalizers_to_ids()
         self.remove_punc = getattr(self.config, "remove_punc", False)
 
     @property
@@ -27,8 +27,9 @@ class ProcessorForStructurePrediction(BaseProcessor):
 
     def generate_dataset(self, pid=0):
         """Prompting each instance and build dataset directly for the Evaluator"""
+        self.labels_ids, self.labels_masks, self.mask_length = self.convert_verbalizers_to_ids(pid)
         prompt_schema = self.config.templates[pid]
-        remove_columns = difference(self.raw_data.features.keys(), self.label_name)
+        remove_columns = difference(self.raw_data.features.keys(), [self.label_name, 'span_idx', 'sentence_id'])
         calibrate_word = self.generate_calibrate_example(pid)
         prompt_length = sum(calibrate_word['attention_mask'])
         # TODO: Calibrate not supported by
@@ -42,14 +43,12 @@ class ProcessorForStructurePrediction(BaseProcessor):
     def prompting(self, example, prompt_schema, max_length=512, sentence_label='sentence'):
         text = ''
         # TODO: Should check if it can be generalized to all RE datasets
-        mask_cnt = 0
         text_length_cnt = 0
         for item in prompt_schema.split('|'):
             item = item.strip()
             # for the placeholders of label_tokens
             if item == '<mask>':
-                text = append_mask_token_to_inputs(text, self.mask_token, self.mask_length[mask_cnt])
-                mask_cnt += 1
+                text = append_mask_token_to_inputs(text, self.mask_token, self.mask_length)
             # for raw inputs
             elif example.get(item) and isinstance(example[item], str):
                 appended_text = example[item].strip()
@@ -63,7 +62,7 @@ class ProcessorForStructurePrediction(BaseProcessor):
                 text = text.strip()
                 if text:
                     text += ' '
-                text += example['token']
+                text += ' '.join(example['span']) if example['span'] else ''
             # for prompting templates
             else:
                 text = append_templates_to_inputs(text, item)
@@ -71,7 +70,7 @@ class ProcessorForStructurePrediction(BaseProcessor):
         res = pad_input_ids(res, self.max_seq_length, self.padding_id)
         res['mask_pos'] = [0] * self.max_seq_length
         # If no mask in the template, append mask in the end
-        mask_length_ttl = sum(self.mask_length)
+        mask_length_ttl = self.mask_length
         for i in range(self.max_seq_length):
             if res['input_ids'][i] == self.mask_token_id:
                 res['mask_pos'][i] = 1
@@ -81,38 +80,42 @@ class ProcessorForStructurePrediction(BaseProcessor):
         res.update({self.label_name: example[self.label_name]})
         return res
 
-    def convert_verbalizers_to_ids(self):
+    def convert_verbalizers_to_ids(self, pid):
         """
 
         :return: [[[372], [205]], [[1099], [6587]]] like this
         """
-        # create label token matrices， if answers are of different length, we pad answer tokens to the same length and
-        # use labels_masks to mask padded position(exclude them in probability/ppl calculation)
-        mask_length = [0, 0]
+        # create label token matrices
+        mask_length = 0
         labels_ids = []
-        for class_labels in self.get_label_tokens():
+        for class_labels in self.get_label_tokens(pid):
             class_labels_ids = []
-            for idx, label in enumerate(class_labels):
+            for label in class_labels:
                 token_ids = self.tokenizer.encode(label,  add_special_tokens=False)
-                mask_length[idx] = max(mask_length[idx], len(token_ids))
+                mask_length = max(mask_length, len(token_ids))
                 class_labels_ids.append(token_ids)
             labels_ids.append(class_labels_ids)
         labels_masks = []
         for class_ids in labels_ids:
             class_masks = []
-            for idx, label in enumerate(class_ids):
-                label_mask = [1] * len(label) + [0] * (mask_length[idx]-len(label))
-                label += [self.padding_id] * (mask_length[idx] - len(label))
+            for label in class_ids:
+                label_mask = [1] * len(label) + [0] * (mask_length-len(label))
+                label += [self.padding_id] * (mask_length - len(label))
                 class_masks.append(label_mask)
             labels_masks.append(class_masks)
         return labels_ids, labels_masks, mask_length
 
-    def get_label_tokens(self):
+    def get_label_tokens(self, pid=0):
+        if isinstance(getattr(self.config, "templates_answers_mapping", None), list) \
+            and len(self.config.templates_answers_mapping) > pid:
+            label_mappings = self.config.label_mappings[self.config.templates_answers_mapping[pid]]
+        else:
+            label_mappings = self.config.label_mappings[0]
         # For GPT2 tokenizers, we should add a space before each word.
         if check_if_bpe_tokenizer(self.tokenizer):
-            label_tokens = [[' '+l.lower() for l in labels] for labels in self.config.label_mappings]
+            label_tokens = [[' '+l for l in labels] for labels in label_mappings]
         else:
-            label_tokens = self.config.label_mappings
+            label_tokens = label_mappings
         return label_tokens
 
     def generate_aux_inputs(self, pid=0):
@@ -125,4 +128,4 @@ class ProcessorForStructurePrediction(BaseProcessor):
         calibrate_input = self.generate_calibrate_example(pid) if getattr(self.config, "calibrate", False) else None
         return {'candidate_idx': candidate_idx, 'candidate_idx_mask': candidate_idx_mask,
                 'candidate_labels': candidate_labels, "qa_prompting": qa_prompting, "calibrate_input": calibrate_input,
-                'mask_length': sum(mask_length)}
+                'mask_length': mask_length}
