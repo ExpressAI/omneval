@@ -13,8 +13,6 @@ def processing_conll2003(config, data):
     for idx, item in enumerate(data):
         # TODO: Do we need to normalize each vocabulary of the text?
         # Only to test
-        if idx > 500:
-            break
         sentence = ' '.join(item['tokens'])
         span_ids = set(enumerate_spans(item['tokens'], max_span_width=config.max_span_width))
         entity_span_ids = get_entity_span_ids(item['ner_tags'], config.tags)
@@ -62,9 +60,9 @@ class ConllConfig(BaseConfig):
     label_mappings = [
         [
             ['not an'],
-            ['a location'],
             ['a person'],
             ['an organization'],
+            ['a location'],
             ['an other'],
         ]
     ]
@@ -73,4 +71,4 @@ class ConllConfig(BaseConfig):
     sentence_label = 'sentence'
     remove_punc = False
     data_preprocessing = processing_conll2003
-    max_span_width = 3
+    max_span_width = 6

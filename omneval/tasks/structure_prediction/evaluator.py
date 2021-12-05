@@ -1,17 +1,11 @@
 import torch
 from omneval.tasks import BaseEvaluator
-from omneval.utils import get_logits
+from omneval.utils import get_logits, BERT_MODELS, BART_MODELS, GPT_MODELS
 from omneval.registry import register_evaluator
 from transformers import AutoTokenizer, AutoModelForPreTraining, AutoModelForCausalLM, AutoModelForSeq2SeqLM
 from torch.nn.functional import cross_entropy
 import collections
 import pdb
-
-BERT_MODELS = ['bert-base-uncased', 'roberta-base', 'bert-large-uncased', 'roberta-large', 'distilroberta-base',
-               'distilbert-base-uncased']
-GPT_MODELS = ['openai-gpt', 'gpt2']
-BART_MODELS = ['facebook/bart-base', 'google/bert_for_seq_generation_L-24_bbc_encoder', 'facebook/bart-large',
-               't5-base', 'facebook/bart-large-cnn']
 
 
 def collate_fn(batch):

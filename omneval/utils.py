@@ -11,7 +11,7 @@ BERT_MODELS = ['bert-base-uncased', 'roberta-base', 'bert-large-uncased', 'rober
                'distilbert-base-uncased']
 GPT_MODELS = ['openai-gpt', 'gpt2']
 BART_MODELS = ['facebook/bart-base', 'facebook/bart-large',
-               'facebook/bart-large-cnn']
+               'facebook/bart-large-cnn', 'sshleifer/distilbart-cnn-12-6']
 T5_MODELS = ['t5-base', 't5-large']
 
 

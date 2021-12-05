@@ -126,6 +126,7 @@ class BaseEvaluator(object):
         self.arch = config.arch
         self.model = self.build_model()
         self.tokenizer = self.build_tokenizer()
+        self.model.resize_token_embeddings(len(self.tokenizer))
         self.padding_id = self.tokenizer.pad_token_id if self.tokenizer.pad_token_id is not None else 0
         self.mask_token, self.mask_token_id = get_masked_tokens(config, self.tokenizer)
         self.label_name = getattr(self.config, 'label_name', 'label')
