@@ -19,12 +19,12 @@ def processing_conll2003(config, data):
         for label, start_id, end_id in entity_span_ids:
             span = item['tokens'][start_id: end_id+1]
             examples.append({'sentence_id': idx, 'span': span, 'label': label, 'sentence': sentence,
-                             'span_idx': (start_id, end_id+1)})
+                             'span_idx': [start_id, end_id+1]})
             span_ids.discard((start_id, end_id))
         for start_id, end_id in span_ids:
             span = item['tokens'][start_id: end_id+1]
             examples.append({'sentence_id': idx, 'span': span, 'label': 'O', 'sentence': sentence,
-                             'span_idx': (start_id, end_id+1)})
+                             'span_idx': [start_id, end_id+1]})
     return Dataset.from_pandas(pd.DataFrame(examples))
 
 
