@@ -57,7 +57,8 @@ class BaseProcessor(object):
             filter_fn = getattr(self.config, 'filter_fn', None)
             assert callable(filter_fn)
         try:
-            df = df.filter(filter_fn)
+            # df = df.filter(filter_fn)
+            df = df.select(range(100))
             logging.info("Use config.filter_fn to filter the dataset, got %d examples" % (df.num_rows))
         except:
             logging.info("No config.filter_fn or config.filter_fn not valid, use the original data, got %d examples" % (df.num_rows))
@@ -177,6 +178,8 @@ class BaseEvaluator(object):
             # TODO: This can be optimized
             merge_fn(res, predictions)
         predictions = self.process_predictions_for_metrics(res)
+        # print('len(predictions): ', len(predictions))
+        # print('len(labels): ', len(labels))
         metrics = metrics_fn.compute(predictions=predictions, references=labels,
                                     **self.config.metrics_kwargs)
         res['label'] = labels
