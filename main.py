@@ -6,7 +6,7 @@ import logging
 import traceback
 import pdb
 logging.basicConfig(level=logging.INFO)
-
+from omneval.utils import BERT_MODELS, GPT_MODELS, BART_MODELS, T5_MODELS
 
 def main():
     args = get_args()
@@ -17,8 +17,9 @@ def main():
         logging.info("Working on task: %s"%task)
         if config.task_type == 'classification':
             check_if_answers_single_tokens(config.label_mappings)
-        try:
-            for arch in args.archs.split('|'):
+        for arch in args.archs.split('|'):
+        # for arch in BERT_MODELS+GPT_MODELS+BART_MODELS+T5_MODELS:
+            try:
                 config.arch = arch
                 logging.info("Working on arch: %s" % arch)
                 processor = build_processor(config)
@@ -26,6 +27,7 @@ def main():
                 metrics_fn = build_metrics(config)
                 for pid in range(len(meta_eval['prompts'])):
                     template = processor.prompt_schema(pid)
+                    logging.info('Using template: %s'%template)
                     dataset = processor.generate_dataset(pid)
                     aux_input = processor.generate_aux_inputs(pid)
                     output, eval_result = evaluator.eval(dataset, metrics_fn, **aux_input)
@@ -33,9 +35,9 @@ def main():
                         evaluator.write_inference_to_json(output, pid)
                     meta_eval['prompts'][pid]['results'].append(eval_result)
                     print_eval_result(eval_result, template)
-        except Exception as e:
-            print(arch, 'failed')
-            print(traceback.format_exc())
+            except Exception as e:
+                print(arch, 'failed')
+                print(traceback.format_exc())
 
         write_meta_eval_to_json(meta_eval, config)
 

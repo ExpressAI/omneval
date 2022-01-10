@@ -46,6 +46,9 @@ class BaseProcessor(object):
             if os.path.exists(dataset):
                 logging.info("Load dataset from local files: %s" % dataset)
                 fmt = dataset.split('.')[-1]
+                if fmt not in ('json', 'csv'):
+                    logging.info("`load_dataset` does not support this data format, use the plain `text` format to import")
+                    fmt = 'text'
                 df = load_dataset(fmt, data_files={test_subset: dataset}, split=test_subset)
             else:
                 logging.info("Search dataset %s from Huggingface's Hub" % dataset)
@@ -87,6 +90,13 @@ class BaseProcessor(object):
         remove_columns = difference(self.raw_data.features.keys(), self.label_name)
         calibrate_word = self.generate_calibrate_example(pid)
         prompt_length = sum(calibrate_word['attention_mask'])
+
+        # print one example for testing:
+        assert len(self.raw_data) > 0, "the raw dataset cannot be empty!"
+        test_example = self.raw_data[0]
+        logging.info("An example prompts of pid=%s: ")
+
+
         return self.raw_data.map(
             lambda x: self.prompting(example=x,
                                      prompt_schema=prompt_schema,
@@ -101,6 +111,7 @@ class BaseProcessor(object):
         return {}
 
     def generate_calibrate_example(self, pid):
+        """Generate calibrated examples"""
         prompt_schema = self.prompt_schema(pid)
         null_example = {k: '' for k in self.raw_data.features.keys()}
         return self.prompting(null_example, prompt_schema)

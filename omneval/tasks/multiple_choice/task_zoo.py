@@ -8,7 +8,7 @@ def processing_winogrande(config, data):
         return example
     return data.map(merge_options, remove_columns=['option1', 'option2'])
 
-@register_task('winogrande_xs')
+@register_task(' ')
 class WinograndeConfig(BaseConfig):
     task = 'winogrande_xs'
     task_type = 'multiple_choice'
@@ -162,3 +162,9 @@ class Olmpic1Config(BaseConfig):
     mask_replace_column = 'sentence'
     mask_replace_token = '[MASK]'
     data_preprocessing = processing_olympics
+
+def processing_winogrande(config, data):
+    def merge_options(example):
+        example['options'] = [example['option1'], example['option2']]
+        return example
+    return data.map(merge_options, remove_columns=['option1', 'option2'])

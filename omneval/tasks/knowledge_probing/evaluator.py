@@ -30,10 +30,10 @@ class BaseEvaluatorForKnowledgeProbing(BaseEvaluator):
             vocab = vocab.strip()
             if check_if_bpe_tokenizer(self.tokenizer):
                 vocab = ' '+vocab
-                aux = self.tokenizer.tokenize(vocab)
-                if len(aux) > 1:
-                    continue
-                vocab = aux[0]
+            aux = self.tokenizer.tokenize(vocab)
+            if len(aux) > 1:
+                continue
+            vocab = aux[0]
             vocab_id = self.tokenizer.convert_tokens_to_ids(vocab)
             if vocab_id not in (self.mask_token_id, self.padding_id, self.tokenizer.unk_token_id):
                 common_vocabs.add(vocab_id)
@@ -83,5 +83,24 @@ class GPTEvaluatorForKnowledgeProbing(BaseEvaluatorForKnowledgeProbing):
             outputs = self.model(**batch)
         logits = get_logits(outputs)
         mask_logits = logits[:, :-1, :][mask_pos > 0].index_select(dim=-1, index=self.vocab_id_list)
+        pred = [self.vocab_id_list[i].item() for i in mask_logits.argmax(-1).cpu().detach().numpy()]
+        return {'predictions': pred}
+
+
+@register_evaluator('knowledge_probing', T5_MODELS)
+class T5EvaluatorForKnowledgeProbing(BaseEvaluatorForKnowledgeProbing):
+
+    def build_model(self):
+        return AutoModelForPreTraining.from_pretrained(self.config.arch).to(self.device)
+
+    def decode(self, batch, **kwargs):
+        mask_pos = batch.pop('mask_pos')
+        batch['labels'] = torch.ones((batch['input_ids'].shape[0], 2), dtype=torch.long).to(self.device) * self.mask_token_id
+        with torch.no_grad():
+            outputs = self.model(**batch)
+        logits = get_logits(outputs)
+        # mask_logits = logits[mask_pos > 0]
+        # pred = [i for i in mask_logits.argmax(-1).cpu().detach().numpy()]
+        mask_logits = logits[:, 1, :].index_select(dim=-1, index=self.vocab_id_list)
         pred = [self.vocab_id_list[i].item() for i in mask_logits.argmax(-1).cpu().detach().numpy()]
         return {'predictions': pred}

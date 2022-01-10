@@ -48,6 +48,7 @@ class BaseEvaluatorForClassification(BaseEvaluator):
     def parse_predictions(self, prediction):
         padding_id = self.tokenizer.pad_token_id if self.tokenizer.pad_token_id is not None else 0
         prediction['topk_tokens'] = self.tokenizer.batch_decode(prediction['topk_tokens'], skip_special_tokens=True)
+        # TODO: make this as another function
         while prediction['inputs'] and prediction['inputs'][-1] == padding_id:
             prediction['inputs'].pop()
         prediction['inputs'] = self.tokenizer.decode(prediction['inputs']).strip()

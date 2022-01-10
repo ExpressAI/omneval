@@ -3,7 +3,7 @@ from omneval.registry import register_task
 
 
 @register_task('cnn_dailymail')
-class SST2Config(BaseConfig):
+class CNNConfig(BaseConfig):
     # Required: The unique task identifier for this task
     task = 'cnn_dailymail'
     # Required: the task type, each task type corresponds to a data processor
@@ -28,6 +28,7 @@ class SST2Config(BaseConfig):
         'article|To Summarize,||highlights',
         'article|To conclude,||highlights',
         'Summarize the following article:|article||highlights',
+        'article||highlights',
     ]
     # Optional: choose the majority class of highest-topk label candidates
     eval_batch_size = 4
@@ -37,7 +38,7 @@ class SST2Config(BaseConfig):
 
 
 @register_task('gigaword')
-class SST2Config(BaseConfig):
+class GigaConfig(BaseConfig):
     # Required: The unique task identifier for this task
     task = 'gigaword'
     # Required: the task type, each task type corresponds to a data processor
@@ -71,7 +72,7 @@ class SST2Config(BaseConfig):
 
 
 @register_task('xsum')
-class SST2Config(BaseConfig):
+class XSUMConfig(BaseConfig):
     # Required: The unique task identifier for this task
     task = 'xsum'
     # Required: the task type, each task type corresponds to a data processor
@@ -136,3 +137,70 @@ class SAMSUMConfig(BaseConfig):
     decode_max_length = 128
     num_beams = 3
     max_seq_length = 512
+
+
+@register_task('ccdv/pubmed-summarization')
+class SAMSUMConfig(BaseConfig):
+    # Required: The unique task identifier for this task
+    task = 'ccdv/pubmed-summarization'
+    # Required: the task type, each task type corresponds to a data processor
+    task_type = 'generation'
+    # Required: Either input a file name that can be tracked in the environment(like  '${PATH_TO_FILE}/${FILE_NAME}')
+    # or a str or list, which is a dataset name for huggingface's `datasets`
+    dataset_name = 'ccdv/pubmed-summarization'  # datasets.load_dataset('glue', 'sst2')
+    # dataset_name = 'lama.json'  # datasets.load_dataset('json', 'lama.json')
+    # dataset_name = 'lama '    # datasets.load_dataset('lama')
+    # Required: The metrics used for this task
+    metrics = 'rouge1'
+    # Optional: The data split used for evaluation: default 'test'
+    test_subset = 'test'
+    label_name = 'summary'
+
+    # Below are parameters for text classification
+    # Required: prompt template:
+    # e.g  `sentence` is the column name for the raw text "It was" and "." are templates, <mask> is the masked poition
+    # Then the template is "<text> It was <mask>."
+    templates = [
+        'article|In Summary,||abstract',
+        'article|To Summarize,||abstract',
+        'article|To conclude,||abstract',
+        'Summarize the following article:|article||abstract',
+    ]
+    # Optional: choose the majority class of highest-topk label candidates
+    eval_batch_size = 4
+    decode_max_length = 256
+    num_beams = 3
+    max_seq_length = 1024
+
+@register_task('ccdv/arxiv-summarization')
+class SAMSUMConfig(BaseConfig):
+    # Required: The unique task identifier for this task
+    task = 'ccdv/arxiv-summarization'
+    # Required: the task type, each task type corresponds to a data processor
+    task_type = 'generation'
+    # Required: Either input a file name that can be tracked in the environment(like  '${PATH_TO_FILE}/${FILE_NAME}')
+    # or a str or list, which is a dataset name for huggingface's `datasets`
+    dataset_name = 'ccdv/arxiv-summarization'  # datasets.load_dataset('glue', 'sst2')
+    # dataset_name = 'lama.json'  # datasets.load_dataset('json', 'lama.json')
+    # dataset_name = 'lama '    # datasets.load_dataset('lama')
+    # Required: The metrics used for this task
+    metrics = 'rouge1'
+    # Optional: The data split used for evaluation: default 'test'
+    test_subset = 'test'
+    label_name = 'summary'
+
+    # Below are parameters for text classification
+    # Required: prompt template:
+    # e.g  `sentence` is the column name for the raw text "It was" and "." are templates, <mask> is the masked poition
+    # Then the template is "<text> It was <mask>."
+    templates = [
+        'article|In Summary,||abstract',
+        'article|To Summarize,||abstract',
+        'article|To conclude,||abstract',
+        'Summarize the following article:|article||abstract',
+    ]
+    # Optional: choose the majority class of highest-topk label candidates
+    eval_batch_size = 4
+    decode_max_length = 256
+    num_beams = 3
+    max_seq_length = 1024

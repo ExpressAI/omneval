@@ -9,11 +9,6 @@ import collections
 from omneval.utils import BERT_MODELS, GPT_MODELS, BART_MODELS, T5_MODELS
 
 
-GPT_MODELS = ['openai-gpt', 'gpt2']
-BART_MODELS = ['facebook/bart-base', 'facebook/bart-large','facebook/bart-large-cnn']
-
-
-
 @register_evaluator('generation', BART_MODELS+T5_MODELS)
 class BARTEvaluatorForClassification(BaseEvaluator):
 

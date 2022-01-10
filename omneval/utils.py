@@ -14,6 +14,102 @@ BART_MODELS = ['facebook/bart-base', 'facebook/bart-large',
                'facebook/bart-large-cnn', 'sshleifer/distilbart-cnn-12-6']
 T5_MODELS = ['t5-base', 't5-large']
 
+# 2021-12-20
+# BERT_MODELS = ['distilroberta-base',
+#                'distilbert-base-uncased', 'distilbert-base-multilingual-cased', 'xlm-roberta-base',
+#                'bert-base-multilingual-cased', 'albert-base-v2', 'vinai/bertweet-base',
+#                'xlm-roberta-large', 'sentence-transformers/all-mpnet-base-v2',
+#                'beomi/kcbert-base', 'albert-large-v2',
+#                'microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract-fulltext', 'johngiorgi/declutr-base',
+#                'microsoft/mpnet-base', ]
+#
+# BERT_MODELS = ['albert-base-v1', 'sentence-transformers/multi-qa-distilbert-cos-v1',
+#                'beomi/kcbert-large', 'microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract',
+#                'xlm-mlm-en-2048', 'albert-xxlarge-v2', 'sshleifer/tiny-distilroberta-base',
+#                'Davlan/bert-base-multilingual-cased-finetuned-amharic', 'dmis-lab/biobert-base-cased-v1.2',
+#                 ]
+
+# 2021-12-30
+# BERT_MODELS = ['nlpaueb/legal-bert-base-uncased', 'emilyalsentzer/Bio_ClinicalBERT', 'google/bigbird-roberta-large',
+#                'emilyalsentzer/Bio_Discharge_Summary_BERT', 'sentence-transformers/all-distilroberta-v1',
+#                'cointegrated/rubert-tiny', 'saibo/legal-roberta-base', 'google/electra-small-generator',
+#                'google/electra-base-generator', 'GroNLP/hateBERT', 'bioformers/bioformer-cased-v1.0', 'EMBEDDIA/crosloengual-bert',
+#                'sentence-transformers/all-roberta-large-v1', 'albert-xxlarge-v1', 'kornosk/bert-political-election2020-twitter-mlm',
+#                'climatebert/distilroberta-base-climate-f', 'zlucia/custom-legalbert', 'anferico/bert-for-patents'
+#                ]
+
+#
+# BERT_MODELS = ['distilbert-base-uncased-finetuned-sst-2-english', 'bhadresh-savani/distilbert-base-uncased-emotion',
+#                'yiyanghkust/finbert-tone', 'lordtt13/emo-mobilebert', 'finiteautomata/bertweet-base-sentiment-analysis',
+#                'ProsusAI/finbert', 'typeform/distilbert-base-uncased-mnli', 'cross-encoder/nli-MiniLM2-L6-H768',
+#                'siebert/sentiment-roberta-large-english', 'Narsil/deberta-large-mnli-zero-cls',
+#                'mrm8488/codebert-base-finetuned-detect-insecure-code', 'microsoft/deberta-base-mnli',
+#                'microsoft/deberta-large-mnli',
+#                ]
+
+
+#2021-01-01
+# BERT_MODELS = ['deepset/roberta-base-squad2', 'cardiffnlp/twitter-roberta-base-sentiment',
+#                'cardiffnlp/twitter-xlm-roberta-base', 'julien-c/bert-xsmall-dummy',
+#                'bert-large-cased-whole-word-masking', 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2',
+#                'google/electra-large-generator', 'klue/bert-base', 'nlptown/bert-base-multilingual-uncased-sentiment',
+#                'dslim/bert-base-NER', 'bionlp/bluebert_pubmed_uncased_L-12_H-768_A-12',
+#                'distilbert-base-cased-distilled-squad', 'distilbert-base-uncased-distilled-squad',
+#                'mrm8488/bioclinicalBERT-finetuned-covid-papers', 'sentence-transformers/all-mpnet-base-v1',
+#                'flax-sentence-embeddings/all_datasets_v3_mpnet-base','facebook/muppet-roberta-large',
+#                'facebook/muppet-roberta-base', 'lordtt13/COVID-SciBERT', 'jhu-clsp/bibert-ende',
+#                ]
+# GPT_MODELS = ['distilgpt2']
+# BART_MODELS = ['tuner007/pegasus_paraphrase']
+# T5_MODELS = ['t5-small']
+
+#2021-01-02
+# BERT_MODELS = ['castorini/azbert-base', 'climatebert/distilroberta-base-climate-s', 'recobo/chemical-bert-uncased',
+#               'albert-xlarge-v1', 'amine/bert-base-5lang-cased', 'ahmedrachid/FinancialBERT',
+#               'flax-sentence-embeddings/all_datasets_v4_mpnet-base', 'climatebert/distilroberta-base-climate-d-s',
+#               'EMBEDDIA/litlat-bert', 'Intel/distilbert-base-uncased-sparse-90-unstructured-pruneofa',
+#               'nlp4good/psych-search', 'beatrice-portelli/DiLBERT', 'monsoon-nlp/muril-adapted-local',
+#               'raynardj/pmc-med-bio-mlm-roberta-large', 'Geotrend/distilbert-base-en-cased',
+#               'Intel/bert-base-uncased-sparse-70-unstructured', 'ayansinha/lic-class-scancode-bert-base-cased-L32-1',
+#               'flax-sentence-embeddings/reddit_single-context_mpnet-base', ]
+# GPT_MODELS = []
+# BART_MODELS = ['ccdv/lsg-pegasus-large-4096', 'ccdv/lsg-bart-base-4096']
+# T5_MODELS = []
+
+
+# 2021-01-04
+# BERT_MODELS = ['typeform/distilroberta-base-v2', 'Geotrend/bert-base-en-cased', 'jhu-clsp/roberta-large-eng-ara-128k',
+#               'recobo/agriculture-bert-uncased', 'biu-nlp/cdlm', 'ayansinha/false-positives-scancode-bert-base-uncased-L8-1',
+#               'zlucia/bert-double', 'ccdv/lsg-base-4096', 'mlcorelib/debertav2-base-uncased',
+#               'abhi1nandy2/Bible-roberta-base', 'junnyu/electra_small_generator', 'mlcorelib/deberta-base-uncased',
+#               'alexanderfalk/danbert-small-cased', 'ccdv/legal-lsg-base-uncased-4096', 'junnyu/roformer_small_generator',
+#               'antoiloui/netbert', 'flax-sentence-embeddings/all_datasets_v3_distilroberta-base', 'vesteinn/XLMR-ENIS',
+#               'byeongal/bert-base-uncased', 'raynardj/roberta-pubmed', 'wilsontam/bert-base-uncased-dstc9',
+#               'Barytes/hellohf', 'Intel/bert-base-uncased-mnli-sparse-70-unstructured-no-classifier',
+#               'Intel/distilbert-base-uncased-sparse-85-unstructured-pruneofa', 'ccdv/legal-lsg-small-uncased-4096',
+#               'benyong/testmodel', 'sramasamy8/testModel'
+#               ]
+#
+# GPT_MODELS = []
+# BART_MODELS = []
+# T5_MODELS = []
+
+# 2021-01-07
+# BERT_MODELS = ['typeform/distilroberta-base-v2', 'Geotrend/bert-base-en-cased', 'jhu-clsp/roberta-large-eng-ara-128k',
+#               'recobo/agriculture-bert-uncased', 'biu-nlp/cdlm', 'ayansinha/false-positives-scancode-bert-base-uncased-L8-1',
+#               'zlucia/bert-double', 'ccdv/lsg-base-4096', 'mlcorelib/debertav2-base-uncased',
+#               'abhi1nandy2/Bible-roberta-base', 'junnyu/electra_small_generator', 'mlcorelib/deberta-base-uncased',
+#               'alexanderfalk/danbert-small-cased', 'ccdv/legal-lsg-base-uncased-4096', 'junnyu/roformer_small_generator',
+#               'antoiloui/netbert', 'flax-sentence-embeddings/all_datasets_v3_distilroberta-base', 'vesteinn/XLMR-ENIS',
+#               'byeongal/bert-base-uncased', 'raynardj/roberta-pubmed', 'wilsontam/bert-base-uncased-dstc9',
+#               'Barytes/hellohf', 'Intel/bert-base-uncased-mnli-sparse-70-unstructured-no-classifier',
+#               'Intel/distilbert-base-uncased-sparse-85-unstructured-pruneofa', 'ccdv/legal-lsg-small-uncased-4096',
+#               'benyong/testmodel', 'sramasamy8/testModel'
+#               ]
+#
+# GPT_MODELS = []
+# BART_MODELS = []
+# T5_MODELS = []
 
 def collate_fn(batch, exclude=[]):
     if callable(getattr(batch, "keys", None)):

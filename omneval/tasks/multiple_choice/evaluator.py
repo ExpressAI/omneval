@@ -131,6 +131,7 @@ class T5EvaluatorFor(BaseEvaluatorForMultipleChoice):
         candidate_idx_mask = batch.pop('labels_masks')
         candidate_labels = kwargs.get('candidate_labels')
         mask_length = batch.pop('mask_length')
+        batch['labels'] = torch.ones((batch['input_ids'].shape[0], 1+mask_length.max().item()), dtype=torch.long).to(self.device) * self.mask_token_id
         with torch.no_grad():
             outputs = self.model(**batch)
         logits = get_logits(outputs)
@@ -139,7 +140,7 @@ class T5EvaluatorFor(BaseEvaluatorForMultipleChoice):
             masked = mask_pos[idx]
             cand = torch.tensor(candidate_idx[idx]).to(self.device)
             cand_mask = torch.tensor(candidate_idx_mask[idx]).to(self.device)
-            mask_logit = logit[masked > 0].view(mask_length[idx], logit.shape[-1])
+            mask_logit = logit[1:mask_length[idx]+1, :].view(mask_length[idx], logits.shape[-1])
             mask_logit = torch.nn.functional.log_softmax(mask_logit, dim=-1)
             candidate_logit = torch.stack(
                 [mask_logit[i, :].index_select(-1, cand[:, i]) for i in range(mask_length[idx])], dim=1)
@@ -152,36 +153,7 @@ class T5EvaluatorFor(BaseEvaluatorForMultipleChoice):
             'inputs': batch['input_ids'].cpu().detach().tolist()
         }
         return predictions
-    def decode(self, batch, **kwargs):
-        mask_pos = batch.pop('mask_pos')
-        candidate_idx = batch.pop('labels_ids')
-        candidate_idx_mask = batch.pop('labels_masks')
-        candidate_labels = kwargs.get('candidate_labels')
-        mask_length = batch.pop('mask_length')
-        candidate_num = len(candidate_labels)
-        batch['labels'] = torch.ones((batch['input_ids'].shape[0], 1 + mask_length), dtype=torch.long).to(
-            self.device) * self.mask_token_id
 
-        topk = kwargs.get('topk')
-        with torch.no_grad():
-            outputs = self.model(**batch)
-        logits = get_logits(outputs)
-        mask_logits = logits[:, 1:, :].view(-1, mask_length, logits.shape[-1])
-        mask_logits = torch.nn.functional.log_softmax(mask_logits, dim=-1)
-        candidate_logits = torch.stack(
-            [mask_logits[:, i, :].index_select(-1, candidate_idx[:, i]) for i in range(mask_length)], dim=1)
-        candidate_logits = torch.sum(torch.mul(candidate_logits, candidate_idx_mask.T.float()), dim=1) / torch.sum(
-            candidate_idx_mask, dim=-1)
-        if calibrate_logits is not None:
-            candidate_logits -= calibrate_logits
-        max_tokens, max_indices = torch.topk(candidate_logits, k=topk)
-        max_label_idx, max_cand_idx = max_indices // candidate_num, max_indices % candidate_num
-        predictions = {
-            'predictions': [candidate_labels[i] for i in torch.mode(max_label_idx, -1)[0].cpu().detach().numpy()],
-            'topk_tokens': candidate_idx[max_indices].cpu().detach().tolist(),
-            'inputs': batch['input_ids'].cpu().detach().tolist()
-        }
-        return predictions
 
     def caculate_calibrate_logits(self, **kwargs):
         candidate_idx = kwargs['candidate_idx'].view(-1,
