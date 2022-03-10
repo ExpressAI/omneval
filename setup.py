@@ -29,6 +29,6 @@ setuptools.setup(
     ],
     entry_points={
         'console_scripts': [
-            'omneval = omneval.main:main'
+            'omneval = main:main'
         ]}
 )
