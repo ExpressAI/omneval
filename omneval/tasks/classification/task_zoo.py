@@ -2,6 +2,7 @@ from omneval.tasks import BaseConfig
 from omneval.registry import register_task
 
 
+# TODO: need to relate this part with Datalabs
 @register_task('sst2')
 class SST2Config(BaseConfig):
     # Required: The unique task identifier for this task
@@ -46,6 +47,7 @@ class SST2Config(BaseConfig):
     ]
     # alternative: proper
     # Optional: choose the majority class of highest-topk label candidates
+    topk = 1
     # Optional: choose the appropriate inference settings
     eval_batch_size = 32
     max_seq_length = 128
@@ -112,6 +114,36 @@ class RTConfig(BaseConfig):
     max_seq_length = 128
 
 
+@register_task('yelp_polarity')
+class AmazonPopularityConfig(BaseConfig):
+    task = 'yelp_polarity'
+    task_type = 'classification'
+    dataset_name = ['yelp_polarity']
+    metrics = 'accuracy'
+    test_subset = 'test'
+    templates = [
+        'text|It was |<mask>|.',
+        'It was |<mask>|.|text|',
+        'text|This is |<mask>|.',
+        'This is |<mask>|.|text|',
+        'text|A |<mask>| movie.',
+        'A |<mask>| movie.|text|',
+        'text|<mask>|!',
+        '<mask>|,|text|',
+        'The author of the following review expresses a |<mask>| sentiment.|text|',
+        'text|The author of the above review expresses a |<mask>| sentiment.',
+    ]
+    labels = [0, 1]
+    label_mappings = [
+    [
+        ['bad', 'terrible', 'awful', 'dire', 'horrible', 'abnormal', 'shocking', 'negative', 'rubbish', 'poor'],
+        ['great', 'good', 'right', 'sound', 'adorable', 'noble', 'pleasant', 'decent', 'excellent',
+         'positive']
+    ]
+    ]
+    eval_batch_size = 32
+    max_seq_length = 256
+
 @register_task('mnli')
 class MNLIConfig(BaseConfig):
     task = 'mnli'
@@ -129,7 +161,7 @@ class MNLIConfig(BaseConfig):
         'It is |<mask>| that |hypothesis|, because |premise|.'
     ]
     labels = [2, 0, 1]
-    templates_answers_mapping = [0, 0, 0, 1, 1, 2, 2]
+    templates_answers_mapping = [0, 0, 0, 0, 0, 0, 1, 1, 2, 2]
     label_mappings = [
     [
         ['No','Instead', 'But', 'Otherwise', 'Yet', 'Except', 'However', 'Rather'],
@@ -158,7 +190,7 @@ class MNLIConfig(BaseConfig):
 class SNLIConfig(BaseConfig):
     task = 'snli'
     task_type = 'classification'
-    dataset_name = ['snli']  # datasets.load_dataset('glue', 'sst2')
+    dataset_name = ['snli']
     metrics = 'accuracy'
     test_subset = 'validation'
     templates = [
@@ -237,7 +269,7 @@ class MRPCConfig(BaseConfig):
     task_type = 'classification'
     dataset_name = ['glue', 'mrpc']
     test_subset = 'test'
-    metrics = 'f1'
+    metrics = 'accuracy'
     templates = [
         'sentence1|<mask>|,|sentence2',
         'The following two sentences are |<mask>|.|sentence1|sentence2',
@@ -257,7 +289,6 @@ class MRPCConfig(BaseConfig):
     ]
     eval_batch_size = 32
     max_seq_length = 128
-    remove_punc = True
 
 
 @register_task('qqp')
@@ -266,7 +297,7 @@ class QQPConfig(BaseConfig):
     task_type = 'classification'
     dataset_name = ['glue', 'qqp']
     test_subset = 'validation'
-    metrics = 'f1'
+    metrics = 'accuracy'
     templates = [
      'question1|<mask>|,|question2',
      'The following two questions are |<mask>|.|question1|question2',
@@ -371,8 +402,6 @@ class AmazonPopularityConfig(BaseConfig):
         'It was |<mask>|.|title|.|content|',
         'title|.|content|This is |<mask>|.',
         'This is |<mask>|.|title|.|content|',
-        'title|.|content|A |<mask>| movie.',
-        'A |<mask>| movie.|title|.|content|',
         'title|.|content|<mask>|!',
         '<mask>|,|title|.|content|',
         'The author of the following review expresses a |<mask>| sentiment.|title|.|content|',
@@ -495,16 +524,6 @@ class TrecConfig(BaseConfig):
     eval_batch_size = 32
     max_seq_length = 128
 
-# label_mappings = [
-# [
-#     ['contraction', 'compression', 'symbol'],
-#     ['description', 'explanation', 'account', 'representation', 'narrative', 'report'],
-#     ['entities', 'object', 'thing', 'substance', 'existence', 'body', 'commodity'],
-#     ['human', 'people', 'person', 'man', 'woman', 'individual'],
-#     ['locations', 'place', 'position', 'spot', 'site', 'region'],
-#     ['numbers', 'quantity', 'figure']
-# ]
-# ]
 
 @register_task('paws')
 class QQPConfig(BaseConfig):
@@ -512,7 +531,7 @@ class QQPConfig(BaseConfig):
     task_type = 'classification'
     dataset_name = ['paws', 'labeled_final']
     test_subset = 'test'
-    metrics = 'f1'
+    metrics = 'accuracy'
     templates = [
      'sentence1|<mask>|,|sentence2',
      'The following two sentences are |<mask>|.|sentence1|sentence2',
@@ -571,13 +590,14 @@ class RTEConfig(BaseConfig):
     eval_batch_size = 32
     max_seq_length = 128
 
+
 @register_task('medical_questions_pairs')
 class MQPConfig(BaseConfig):
     task = 'medical_questions_pairs'
     task_type = 'classification'
     dataset_name = ['medical_questions_pairs']
     test_subset = 'train'
-    metrics = 'f1'
+    metrics = 'accuracy'
     templates = [
      'question_1|<mask>|,|question_2',
      'The following two questions are |<mask>|.|question_1|question_2',
@@ -609,7 +629,7 @@ class BoolqConfig(BaseConfig):
     metrics = 'accuracy'
     templates = [
      'passage|.|question|?|<mask>|.',
-     'question|?|<mask>|.|passage|.'
+     'question|?|<mask>|.|passage|.',
      'passage|.|Question: |question|?|Answer: |<mask>|.',
      'Question: |question|?|Answer: |<mask>|.|passage|.|',
      'passage|.|Based on the previous passage, |question|?|Answer: |<mask>|.',
@@ -623,7 +643,7 @@ class BoolqConfig(BaseConfig):
     ],
     ]
     eval_batch_size = 16
-    max_seq_length = 512
+    max_seq_length = 256
     remove_punc = True
 
 
@@ -653,6 +673,7 @@ class BoolqConfig(BaseConfig):
     eval_batch_size = 16
     max_seq_length = 256
 
+
 def processing_asba(config, data):
     def process(example):
         example['aspect'], example['sentence'], example['label'] = example['text'].split('\t')
@@ -660,11 +681,12 @@ def processing_asba(config, data):
         return example
     return data.map(process, remove_columns=['text'])
 
+
 @register_task('absa-twitter')
 class ABSATwitterConfig(BaseConfig):
     task = 'absa-twitter'
     task_type = 'classification'
-    dataset_name = 'absa/test-twitter.tsv'
+    dataset_name = 'datasets/absa/test-twitter.tsv'
     metrics = 'accuracy'
     test_subset = 'test'
     templates = [
@@ -694,7 +716,7 @@ class ABSATwitterConfig(BaseConfig):
 class ABSALaptopConfig(BaseConfig):
     task = 'absa-laptop'
     task_type = 'classification'
-    dataset_name = 'absa/test-laptop.tsv'
+    dataset_name = 'datasets/absa/test-laptop.tsv'
     metrics = 'accuracy'
     test_subset = 'test'
     templates = [
@@ -720,12 +742,11 @@ class ABSALaptopConfig(BaseConfig):
     data_preprocessing = processing_asba
 
 
-
 @register_task('absa-rest14')
 class ABSARest14Config(BaseConfig):
     task = 'absa-rest14'
     task_type = 'classification'
-    dataset_name = 'absa/test-rest14.tsv'
+    dataset_name = 'datasets/absa/test-rest14.tsv'
     metrics = 'accuracy'
     test_subset = 'test'
     templates = [

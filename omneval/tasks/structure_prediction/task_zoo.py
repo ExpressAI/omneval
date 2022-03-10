@@ -4,8 +4,11 @@ from omneval.utils import make_sentence, get_entity_span_ids
 import pandas as pd
 from datasets import Dataset
 import pdb
-from allennlp.data.dataset_readers.dataset_utils import enumerate_spans
-
+import logging
+try:
+    from allennlp.data.dataset_readers.dataset_utils import enumerate_spans
+except:
+    logging.info('allennlp not installed, staructural prediction tasks disabled')
 
 
 def processing_conll2003(config, data):
@@ -26,6 +29,7 @@ def processing_conll2003(config, data):
             examples.append({'sentence_id': idx, 'span': span, 'label': 'O', 'sentence': sentence,
                              'span_idx': [start_id, end_id+1]})
     return Dataset.from_pandas(pd.DataFrame(examples))
+
 
 def processing_conll2000(config, data):
     examples = []
@@ -127,6 +131,7 @@ class ConllConfig(BaseConfig):
     remove_punc = False
     data_preprocessing = processing_conll2003
     max_span_width = 6
+    eval_batch_size = 8
 
 
 def processing_wikiann(config, data):
@@ -285,7 +290,7 @@ class ConllConfig(BaseConfig):
     remove_punc = False
     data_preprocessing = processing_conll2003
     max_span_width = 6
-    eval_batch_size = 32
+    eval_batch_size = 8
 
 @register_task('conll2000')
 class ConllConfig(BaseConfig):

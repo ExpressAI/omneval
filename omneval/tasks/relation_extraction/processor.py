@@ -21,6 +21,7 @@ class ProcessorForRelationExtraction(BaseProcessor):
         super(ProcessorForRelationExtraction, self).__init__(config)
         self.labels_ids, self.labels_masks, self.mask_length = self.convert_verbalizers_to_ids()
         self.remove_punc = getattr(self.config, "remove_punc", False)
+        self.sentence_label = getattr(self.config, "sentence_label", 'sentence')
 
     @property
     def prompt_count(self):
@@ -39,15 +40,14 @@ class ProcessorForRelationExtraction(BaseProcessor):
         return self.raw_data.map(
             lambda x: self.prompting(example=x,
                                      prompt_schema=prompt_schema,
-                                     max_length=self.max_seq_length-prompt_length,
-                                     sentence_label=self.config.sentence_label),
+                                     max_length=self.max_seq_length-prompt_length),
                                      remove_columns=remove_columns,)
 
-    def prompting(self, example, prompt_schema, max_length=512, sentence_label='sentence'):
+    def prompting(self, example, prompt_schema, max_length=512):
         text = ''
         # TODO: Should check if it can be generalized to all RE datasets
-        e1 = re.findall(r'<e1>(.+)</e1>', example[sentence_label])
-        e2 = re.findall(r'<e2>(.+)</e2>', example[sentence_label])
+        e1 = re.findall(r'<e1>(.+)</e1>', example[self.sentence_label])
+        e2 = re.findall(r'<e2>(.+)</e2>', example[self.sentence_label])
         e1 = e1[0] if len(e1) > 0 else ''
         e2 = e2[0] if len(e2) > 0 else ''
         mask_cnt = 0
@@ -61,7 +61,7 @@ class ProcessorForRelationExtraction(BaseProcessor):
             # for raw inputs
             elif example.get(item) and isinstance(example[item], str):
                 appended_text = example[item].strip()
-                if item == sentence_label:
+                if item == self.sentence_label:
                     appended_text = re.sub(r'(<e1>)|(<e2>)|(</e1>)|(</e2>)', '', appended_text)
                 # If example[item] is not the beginning of the sentence, lowercase all words
                 appended_text = normalize_raw_text_to_inputs(appended_text, self.config.remove_punc)
@@ -107,14 +107,19 @@ class ProcessorForRelationExtraction(BaseProcessor):
                 class_labels_ids.append(token_ids)
             labels_ids.append(class_labels_ids)
         labels_masks = []
+        labels_ids_tmp = []
         for class_ids in labels_ids:
             class_masks = []
+            class_label_tmp = []
+            class_label_mask_tmp = []
             for idx, label in enumerate(class_ids):
                 label_mask = [1] * len(label) + [0] * (mask_length[idx]-len(label))
                 label += [self.padding_id] * (mask_length[idx] - len(label))
-                class_masks.append(label_mask)
-            labels_masks.append(class_masks)
-        return labels_ids, labels_masks, mask_length
+                class_label_mask_tmp += label_mask
+                class_label_tmp += label
+            labels_masks.append(class_label_mask_tmp)
+            labels_ids_tmp.append(class_label_tmp)
+        return labels_ids_tmp, labels_masks, mask_length
 
     def get_label_tokens(self):
         # For GPT2 tokenizers, we should add a space before each word.

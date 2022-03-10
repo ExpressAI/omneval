@@ -39,7 +39,7 @@ class ProcessorForKnowledgeProbing(BaseProcessor):
         res = pad_input_ids(res, self.max_seq_length, self.padding_id)
         res['mask_pos'] = [0] * self.max_seq_length
         mask_start_pos = res['input_ids'].index(self.mask_token_id)
-        # TODO: is this task only for single token classification?
+        # This task currently only support single-token probing?
         res['mask_pos'][mask_start_pos] = 1
         if isinstance(self.tokenizer, GPT2Tokenizer) or isinstance(self.tokenizer, GPT2TokenizerFast):
             example[self.label_name] = ' '+example[self.label_name]

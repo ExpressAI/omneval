@@ -6,112 +6,27 @@ from transformers import AutoConfig, AutoTokenizer, GPT2Tokenizer, GPT2Tokenizer
 import logging
 import collections
 
-
 BERT_MODELS = ['bert-base-uncased', 'roberta-base', 'bert-large-uncased', 'roberta-large', 'distilroberta-base',
                'distilbert-base-uncased']
+
 GPT_MODELS = ['openai-gpt', 'gpt2']
+
 BART_MODELS = ['facebook/bart-base', 'facebook/bart-large',
-               'facebook/bart-large-cnn', 'sshleifer/distilbart-cnn-12-6']
+               'facebook/bart-large-cnn', 'sshleifer/distilbart-cnn-12-6', 'facebook/bart-large-mnli',
+               'textattack/facebook-bart-large-SST-2', 'facebook/bart-large-xsum']
+
 T5_MODELS = ['t5-base', 't5-large']
 
-# 2021-12-20
-# BERT_MODELS = ['distilroberta-base',
-#                'distilbert-base-uncased', 'distilbert-base-multilingual-cased', 'xlm-roberta-base',
-#                'bert-base-multilingual-cased', 'albert-base-v2', 'vinai/bertweet-base',
-#                'xlm-roberta-large', 'sentence-transformers/all-mpnet-base-v2',
-#                'beomi/kcbert-base', 'albert-large-v2',
-#                'microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract-fulltext', 'johngiorgi/declutr-base',
-#                'microsoft/mpnet-base', ]
-#
-# BERT_MODELS = ['albert-base-v1', 'sentence-transformers/multi-qa-distilbert-cos-v1',
-#                'beomi/kcbert-large', 'microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract',
-#                'xlm-mlm-en-2048', 'albert-xxlarge-v2', 'sshleifer/tiny-distilroberta-base',
-#                'Davlan/bert-base-multilingual-cased-finetuned-amharic', 'dmis-lab/biobert-base-cased-v1.2',
-#                 ]
+SUPPORTED_MODELS = {
+    'bert': BERT_MODELS,
+    'bart': BART_MODELS,
+    'gpt': GPT_MODELS,
+    't5': T5_MODELS
+}
 
-# 2021-12-30
-# BERT_MODELS = ['nlpaueb/legal-bert-base-uncased', 'emilyalsentzer/Bio_ClinicalBERT', 'google/bigbird-roberta-large',
-#                'emilyalsentzer/Bio_Discharge_Summary_BERT', 'sentence-transformers/all-distilroberta-v1',
-#                'cointegrated/rubert-tiny', 'saibo/legal-roberta-base', 'google/electra-small-generator',
-#                'google/electra-base-generator', 'GroNLP/hateBERT', 'bioformers/bioformer-cased-v1.0', 'EMBEDDIA/crosloengual-bert',
-#                'sentence-transformers/all-roberta-large-v1', 'albert-xxlarge-v1', 'kornosk/bert-political-election2020-twitter-mlm',
-#                'climatebert/distilroberta-base-climate-f', 'zlucia/custom-legalbert', 'anferico/bert-for-patents'
-#                ]
-
-#
-# BERT_MODELS = ['distilbert-base-uncased-finetuned-sst-2-english', 'bhadresh-savani/distilbert-base-uncased-emotion',
-#                'yiyanghkust/finbert-tone', 'lordtt13/emo-mobilebert', 'finiteautomata/bertweet-base-sentiment-analysis',
-#                'ProsusAI/finbert', 'typeform/distilbert-base-uncased-mnli', 'cross-encoder/nli-MiniLM2-L6-H768',
-#                'siebert/sentiment-roberta-large-english', 'Narsil/deberta-large-mnli-zero-cls',
-#                'mrm8488/codebert-base-finetuned-detect-insecure-code', 'microsoft/deberta-base-mnli',
-#                'microsoft/deberta-large-mnli',
-#                ]
-
-
-#2021-01-01
-# BERT_MODELS = ['deepset/roberta-base-squad2', 'cardiffnlp/twitter-roberta-base-sentiment',
-#                'cardiffnlp/twitter-xlm-roberta-base', 'julien-c/bert-xsmall-dummy',
-#                'bert-large-cased-whole-word-masking', 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2',
-#                'google/electra-large-generator', 'klue/bert-base', 'nlptown/bert-base-multilingual-uncased-sentiment',
-#                'dslim/bert-base-NER', 'bionlp/bluebert_pubmed_uncased_L-12_H-768_A-12',
-#                'distilbert-base-cased-distilled-squad', 'distilbert-base-uncased-distilled-squad',
-#                'mrm8488/bioclinicalBERT-finetuned-covid-papers', 'sentence-transformers/all-mpnet-base-v1',
-#                'flax-sentence-embeddings/all_datasets_v3_mpnet-base','facebook/muppet-roberta-large',
-#                'facebook/muppet-roberta-base', 'lordtt13/COVID-SciBERT', 'jhu-clsp/bibert-ende',
-#                ]
-# GPT_MODELS = ['distilgpt2']
-# BART_MODELS = ['tuner007/pegasus_paraphrase']
-# T5_MODELS = ['t5-small']
-
-#2021-01-02
-# BERT_MODELS = ['castorini/azbert-base', 'climatebert/distilroberta-base-climate-s', 'recobo/chemical-bert-uncased',
-#               'albert-xlarge-v1', 'amine/bert-base-5lang-cased', 'ahmedrachid/FinancialBERT',
-#               'flax-sentence-embeddings/all_datasets_v4_mpnet-base', 'climatebert/distilroberta-base-climate-d-s',
-#               'EMBEDDIA/litlat-bert', 'Intel/distilbert-base-uncased-sparse-90-unstructured-pruneofa',
-#               'nlp4good/psych-search', 'beatrice-portelli/DiLBERT', 'monsoon-nlp/muril-adapted-local',
-#               'raynardj/pmc-med-bio-mlm-roberta-large', 'Geotrend/distilbert-base-en-cased',
-#               'Intel/bert-base-uncased-sparse-70-unstructured', 'ayansinha/lic-class-scancode-bert-base-cased-L32-1',
-#               'flax-sentence-embeddings/reddit_single-context_mpnet-base', ]
-# GPT_MODELS = []
-# BART_MODELS = ['ccdv/lsg-pegasus-large-4096', 'ccdv/lsg-bart-base-4096']
-# T5_MODELS = []
-
-
-# 2021-01-04
-# BERT_MODELS = ['typeform/distilroberta-base-v2', 'Geotrend/bert-base-en-cased', 'jhu-clsp/roberta-large-eng-ara-128k',
-#               'recobo/agriculture-bert-uncased', 'biu-nlp/cdlm', 'ayansinha/false-positives-scancode-bert-base-uncased-L8-1',
-#               'zlucia/bert-double', 'ccdv/lsg-base-4096', 'mlcorelib/debertav2-base-uncased',
-#               'abhi1nandy2/Bible-roberta-base', 'junnyu/electra_small_generator', 'mlcorelib/deberta-base-uncased',
-#               'alexanderfalk/danbert-small-cased', 'ccdv/legal-lsg-base-uncased-4096', 'junnyu/roformer_small_generator',
-#               'antoiloui/netbert', 'flax-sentence-embeddings/all_datasets_v3_distilroberta-base', 'vesteinn/XLMR-ENIS',
-#               'byeongal/bert-base-uncased', 'raynardj/roberta-pubmed', 'wilsontam/bert-base-uncased-dstc9',
-#               'Barytes/hellohf', 'Intel/bert-base-uncased-mnli-sparse-70-unstructured-no-classifier',
-#               'Intel/distilbert-base-uncased-sparse-85-unstructured-pruneofa', 'ccdv/legal-lsg-small-uncased-4096',
-#               'benyong/testmodel', 'sramasamy8/testModel'
-#               ]
-#
-# GPT_MODELS = []
-# BART_MODELS = []
-# T5_MODELS = []
-
-# 2021-01-07
-# BERT_MODELS = ['typeform/distilroberta-base-v2', 'Geotrend/bert-base-en-cased', 'jhu-clsp/roberta-large-eng-ara-128k',
-#               'recobo/agriculture-bert-uncased', 'biu-nlp/cdlm', 'ayansinha/false-positives-scancode-bert-base-uncased-L8-1',
-#               'zlucia/bert-double', 'ccdv/lsg-base-4096', 'mlcorelib/debertav2-base-uncased',
-#               'abhi1nandy2/Bible-roberta-base', 'junnyu/electra_small_generator', 'mlcorelib/deberta-base-uncased',
-#               'alexanderfalk/danbert-small-cased', 'ccdv/legal-lsg-base-uncased-4096', 'junnyu/roformer_small_generator',
-#               'antoiloui/netbert', 'flax-sentence-embeddings/all_datasets_v3_distilroberta-base', 'vesteinn/XLMR-ENIS',
-#               'byeongal/bert-base-uncased', 'raynardj/roberta-pubmed', 'wilsontam/bert-base-uncased-dstc9',
-#               'Barytes/hellohf', 'Intel/bert-base-uncased-mnli-sparse-70-unstructured-no-classifier',
-#               'Intel/distilbert-base-uncased-sparse-85-unstructured-pruneofa', 'ccdv/legal-lsg-small-uncased-4096',
-#               'benyong/testmodel', 'sramasamy8/testModel'
-#               ]
-#
-# GPT_MODELS = []
-# BART_MODELS = []
-# T5_MODELS = []
 
 def collate_fn(batch, exclude=[]):
+    """make batches for the data"""
     if callable(getattr(batch, "keys", None)):
         keys = batch.keys()
         return {k: torch.LongTensor([batch[k]]) if k not in exclude else [bz[k] for bz in batch] for k in keys}
@@ -122,6 +37,7 @@ def collate_fn(batch, exclude=[]):
 
 
 def get_logits(outputs):
+    """get logits from the PLM"""
     if hasattr(outputs, 'logits'):
         logits = outputs.logits
     elif hasattr(outputs, 'prediction_logits'):
@@ -141,9 +57,13 @@ def difference(list1, list2):
 
 
 def truncate_text(text, tokenizer, target_length):
+    """Function to truncate text into target length"""
+    # direct truncation from the tokenized list may lead to an unwanted length after a second time tokenization.
+    # So currently use a loop to make sure the text can be tokenized into the target length
     while True:
         tokenized_text = tokenizer.encode(text, max_length=target_length, add_special_tokens=False)
-        text = tokenizer.decode(tokenized_text[: target_length], clean_up_tokenization_spaces=True, skip_special_tokens=True)
+        text = tokenizer.decode(tokenized_text[: target_length], clean_up_tokenization_spaces=True,
+                                skip_special_tokens=True)
         text_length = len(tokenizer.encode(text, add_special_tokens=False))
         if text_length <= target_length:
             break
@@ -152,10 +72,9 @@ def truncate_text(text, tokenizer, target_length):
 
 
 def pad_input_ids(example, max_seq_length, padding_id, truncated='right'):
+    """Pad inputs"""
     text_len = len(example['input_ids'])
-    # assert text_len <= max_seq_length, "length of input_ids %s, max_length thres %d"%(text_len, max_seq_length)
     if text_len > max_seq_length:
-        # print("length of input_ids %s, max_length thres %d; trancate from %s"%(text_len, max_seq_length, truncated))
         for k in example.keys():
             if truncated == 'right':
                 example[k] = example[k][: max_seq_length]
@@ -169,6 +88,7 @@ def pad_input_ids(example, max_seq_length, padding_id, truncated='right'):
 
 
 def init_eval_result(config):
+    """Initialize the evaluation fields"""
     meta = {'task': config.task,
             'task_type': config.task_type,
             'datasets': config.dataset_name if isinstance(config.dataset_name, str) else '/'.join(config.dataset_name),
@@ -186,7 +106,8 @@ def init_eval_result(config):
 
 
 def write_meta_eval_to_json(output, config):
-    filename = config.meta_prefix+'_'+config.task+'.json'
+    """write meta evaluation metrics into json file"""
+    filename = config.meta_prefix + '_' + config.task + '.json'
     filename = os.path.join(config.out_dir, filename)
     if os.path.exists(filename):
         with open(filename, 'r') as f:
@@ -199,6 +120,7 @@ def write_meta_eval_to_json(output, config):
 
 
 def merge_meta_result(output1, output2):
+    """Merge results from existing result files"""
     t_dict = get_temp_result_dict(output1)
     for item in output2['prompts']:
         if item['template'] not in t_dict:
@@ -207,6 +129,7 @@ def merge_meta_result(output1, output2):
             t_dict[item['template']][result['plm']] = result
     output1['prompts'] = reverse_to_json(t_dict, setting='zero-shot')
     return output1
+
 
 def reverse_to_json(t_dict, setting='zero-shot'):
     res = []
@@ -227,19 +150,16 @@ def get_temp_result_dict(output):
 
 def print_eval_result(eval_results, template=None):
     if template:
-        print("Using template: %s"%template)
+        print("Using template: %s" % template)
     for k, v in eval_results.items():
         print(k, ":", v)
 
 
 def normalize_raw_text_to_inputs(text, remove_punc=False, lowercase=True):
-    # TODO: Need to think that why we need to lowercase all words
+    """function to normalize all """
+    # Currently we lowercase all input texts as normalization
     if lowercase:
         text = text.strip().lower()
-    # if cur_text and cur_text.strip()[-1] not in string.punctuation:
-    #     append_text = append_text.lower()
-    # else:
-    #     append_text = append_text.capitalize()
     if not text:
         return text
     if text[-1] in string.punctuation:
@@ -254,6 +174,7 @@ def normalize_raw_text_to_inputs(text, remove_punc=False, lowercase=True):
 
 
 def append_templates_to_inputs(text, templates, next_line=False):
+    """Add prompt template to the original input, should care about whitespaces and punctuations"""
     text = text.strip()
     if text and templates and templates[0] not in string.punctuation:
         text += (' ' if not next_line else '\n')
@@ -264,8 +185,8 @@ def append_templates_to_inputs(text, templates, next_line=False):
 
 
 def append_mask_token_to_inputs(text, mask_token, mask_length):
-    # TODO: Should find better adaptation ways for different tokenizers(GPT2)
-    # for raw inputs
+    """ Add mask tokens for MLM classification"""
+    # special for GPT2
     if mask_token != '<|endoftext|>':
         text = text.strip()
         if text:
@@ -275,7 +196,9 @@ def append_mask_token_to_inputs(text, mask_token, mask_length):
         text += mask_token * mask_length
     return text
 
+
 def adjust_length(config):
+    """Return the expected length for non-prompt text"""
     model_config = AutoConfig.from_pretrained(config.arch)
     max_position_embeddings = getattr(model_config, 'max_position_embeddings', config.max_seq_length)
     max_seq_length = min(config.max_seq_length, max_position_embeddings)
@@ -290,6 +213,7 @@ def adjust_length(config):
 
 
 def get_masked_tokens(config, tokenizer):
+    """get masked token representation for PLM"""
     if not tokenizer._mask_token:
         if config.arch.startswith('t5'):
             mask_token = '<extra_id_0>'
@@ -304,12 +228,14 @@ def get_masked_tokens(config, tokenizer):
 
 
 def check_if_bpe_tokenizer(tokenizer):
+    """ check whether PLM uses BPE tokenizers"""
     return isinstance(tokenizer, GPT2Tokenizer) or isinstance(tokenizer, GPT2TokenizerFast)
 
 
 def check_if_answers_single_tokens(label_mappings):
+    """For classification task, check if the answer candidate is single-token"""
     BASE_MODEL = ['bert-base-uncased', 'roberta-base', 'openai-gpt', 'gpt2', 'facebook/bart-base', 't5-base']
-    logging.info("Checking if length of all answers are 1 for most base models. \nBase models: %s"%str(BASE_MODEL))
+    logging.info("Checking if length of all answers are 1 for most base models. \nBase models: %s" % str(BASE_MODEL))
     base_tokenizers = [AutoTokenizer.from_pretrained(model) for model in BASE_MODEL]
     memo = collections.defaultdict(set)
     res = True
@@ -335,6 +261,7 @@ def check_if_answers_single_tokens(label_mappings):
 
 
 def make_sentence(l):
+    """add string lists to a sentence"""
     text = ''
     for idx, token in enumerate(l):
         if token not in string.punctuation:
@@ -357,21 +284,25 @@ def replace_tokens_to_mask(text, replace_token, mask_token):
     return text
 
 
-# Utils for CONLL2003 NER
+"""
+Below are functions for CONLL2003 NER metrics
+"""
+
 
 def get_chunk_type(tok):
-	"""
+    """
 	Args:
 		tok: id of token, ex 4
 		idx_to_tag: dictionary {4: "B-PER", ...}
 	Returns:
 		tuple: "B", "PER"
 	"""
-	# tag_name = idx_to_tag[tok]
-	tag_class = tok.split('-')[0]
-	# tag_type = tok.split('-')[-1]
-	tag_type = '-'.join(tok.split('-')[1:])
-	return tag_class, tag_type
+    # tag_name = idx_to_tag[tok]
+    tag_class = tok.split('-')[0]
+    # tag_type = tok.split('-')[-1]
+    tag_type = '-'.join(tok.split('-')[1:])
+    return tag_class, tag_type
+
 
 def get_entity_span_ids(seq, tags, default='O'):
     """
@@ -395,7 +326,7 @@ def get_entity_span_ids(seq, tags, default='O'):
         tok = idx_to_tag[tok]
         if tok == default and chunk_type is not None:
             # Add a chunk.
-            chunk = (chunk_type, chunk_start, i-1)
+            chunk = (chunk_type, chunk_start, i - 1)
             chunks.append(chunk)
             chunk_type, chunk_start = None, None
 
@@ -405,14 +336,14 @@ def get_entity_span_ids(seq, tags, default='O'):
             if chunk_type is None:
                 chunk_type, chunk_start = tok_chunk_type, i
             elif tok_chunk_type != chunk_type or tok_chunk_class == "B":
-                chunk = (chunk_type, chunk_start, i-1)
+                chunk = (chunk_type, chunk_start, i - 1)
                 chunks.append(chunk)
                 chunk_type, chunk_start = tok_chunk_type, i
         else:
             pass
     # end condition
     if chunk_type is not None:
-        chunk = (chunk_type, chunk_start, len(seq)-1)
+        chunk = (chunk_type, chunk_start, len(seq) - 1)
         chunks.append(chunk)
 
     return chunks

@@ -10,10 +10,6 @@ from torch.utils.data import DataLoader
 import logging
 from omneval.utils import BERT_MODELS, GPT_MODELS, BART_MODELS, T5_MODELS
 from tqdm import tqdm
-#
-# GPT_MODELS = ['openai-gpt', 'gpt2']
-# BART_MODELS = ['facebook/bart-base', 'facebook/bart-large','facebook/bart-large-cnn']
-#
 
 class BaseEvaluatorForGenerateQA(BaseEvaluator):
 

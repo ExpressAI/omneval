@@ -31,6 +31,7 @@ class ProcessorForClassification(BaseProcessor):
         self.labels_ids, self.labels_masks, self.mask_length = self.convert_verbalizers_to_ids(pid)
         prompt_schema = self.config.templates[pid]
         remove_columns = difference(self.raw_data.features.keys(), self.label_name)
+        # generate a sample for calibration(no text but only prompt template)
         calibrate_word = self.generate_calibrate_example(pid)
         prompt_length = sum(calibrate_word['attention_mask'])
         return self.raw_data.map(

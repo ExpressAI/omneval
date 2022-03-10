@@ -51,6 +51,7 @@ class Rouge2(EaasMetrics):
     def postprocess(self, res):
         return {'rouge2': res['corpus_level']['corpus_rouge_2']}
 
+
 @register_metrics('f1-ner')
 class NERF1(BaseMetrics):
     def compute(self, predictions, references):

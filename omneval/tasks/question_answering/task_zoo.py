@@ -161,3 +161,45 @@ class SquadConfig(BaseConfig):
     decode_max_length = 64
     num_beams = 3
     max_seq_length = 512
+
+def processing_narrativeqa(config, data):
+    def merge_options(example):
+        example['summary'] = example['document']['summary']['text']
+        example['question'] = example['question']['text']
+        example['id'] = example['summary'][:10]
+        example['answers'] = example['answers'][0]
+        return example
+    return data.map(merge_options, remove_columns=['document'])
+
+
+@register_task('narrativeqa')
+class SquadConfig(BaseConfig):
+    # Required: The unique task identifier for this task
+    task = 'narrativeqa'
+    # Required: the task type, each task type corresponds to a data processor
+    task_type = 'question_answering'
+    # Required: Either input a file name that can be tracked in the environment(like  '${PATH_TO_FILE}/${FILE_NAME}')
+    # or a str or list, which is a dataset name for huggingface's `datasets`
+    dataset_name = ['narrativeqa'] # datasets.load_dataset('glue', 'sst2')
+    # dataset_name = 'lama.json'  # datasets.load_dataset('json', 'lama.json')
+    # dataset_name = 'lama '    # datasets.load_dataset('lama')
+    # Required: The metrics used for this task
+    metrics = 'squad'
+    # Optional: The data split used for evaluation: default 'test'
+    test_subset = 'test'
+    label_name = 'answers'
+    remain_columns = ['id', 'answers']
+    # Below are parameters for text classification
+    # Required: prompt template:
+    # e.g  `sentence` is the column name for the raw text "It was" and "." are templates, <mask> is the masked poition
+    # Then the template is "<text> It was <mask>."
+    templates = [
+        'summary|question||answers',
+    ]
+    # Optional: choose the majority class of highest-topk label candidates
+    topk = 1
+    eval_batch_size = 8
+    decode_max_length = 10
+    num_beams = 3
+    max_seq_length = 512
+    data_preprocessing = processing_narrativeqa

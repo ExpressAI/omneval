@@ -54,10 +54,6 @@ class GPTEvaluatorForClassification(BaseEvaluator):
             outputs = self.model.generate(**batch, num_beams=self.config.num_beams,
                                           early_stopping=True,
                                           max_length=adjust_length(self.config)+self.config.decode_max_length)
-        # encoder_input_sum = batch['attention_mask'].sum(dim=1)
-        # new_outputs = torch.ones_like(outputs).to(self.device) * self.padding_id
-        # for i in range(outputs.shape[0]):
-        #     new_outputs[i][: -encoder_input_sum[i]] = outputs[i][encoder_input_sum[i]: ]
         preds = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
         source = self.tokenizer.batch_decode(batch['input_ids'], skip_special_tokens=True)
         new_pred = []

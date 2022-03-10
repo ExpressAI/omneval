@@ -8,8 +8,6 @@ import pdb
 from omneval.utils import BERT_MODELS, GPT_MODELS, BART_MODELS, T5_MODELS
 
 
-
-
 class BaseEvaluatorForKnowledgeProbing(BaseEvaluator):
 
     def __init__(self, config):
@@ -59,8 +57,6 @@ class BERTEvaluatorForKnowledgeProbing(BaseEvaluatorForKnowledgeProbing):
         with torch.no_grad():
             outputs = self.model(**batch)
         logits = get_logits(outputs)
-        # mask_logits = logits[mask_pos > 0]
-        # pred = [i for i in mask_logits.argmax(-1).cpu().detach().numpy()]
         mask_logits = logits[mask_pos > 0].index_select(dim=-1, index=self.vocab_id_list)
         pred = [self.vocab_id_list[i].item() for i in mask_logits.argmax(-1).cpu().detach().numpy()]
         return {'predictions': pred}
@@ -99,8 +95,6 @@ class T5EvaluatorForKnowledgeProbing(BaseEvaluatorForKnowledgeProbing):
         with torch.no_grad():
             outputs = self.model(**batch)
         logits = get_logits(outputs)
-        # mask_logits = logits[mask_pos > 0]
-        # pred = [i for i in mask_logits.argmax(-1).cpu().detach().numpy()]
         mask_logits = logits[:, 1, :].index_select(dim=-1, index=self.vocab_id_list)
         pred = [self.vocab_id_list[i].item() for i in mask_logits.argmax(-1).cpu().detach().numpy()]
         return {'predictions': pred}

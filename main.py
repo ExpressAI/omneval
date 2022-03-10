@@ -18,7 +18,6 @@ def main():
         if config.task_type == 'classification':
             check_if_answers_single_tokens(config.label_mappings)
         for arch in args.archs.split('|'):
-        # for arch in BERT_MODELS+GPT_MODELS+BART_MODELS+T5_MODELS:
             try:
                 config.arch = arch
                 logging.info("Working on arch: %s" % arch)

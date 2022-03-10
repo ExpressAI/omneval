@@ -2,13 +2,14 @@ from omneval.tasks import BaseConfig
 from omneval.registry import register_task
 import pdb
 
+
 def processing_winogrande(config, data):
     def merge_options(example):
         example['options'] = [example['option1'], example['option2']]
         return example
     return data.map(merge_options, remove_columns=['option1', 'option2'])
 
-@register_task(' ')
+@register_task('winogrande_xs')
 class WinograndeConfig(BaseConfig):
     task = 'winogrande_xs'
     task_type = 'multiple_choice'
@@ -51,7 +52,7 @@ class Olmpic1Config(BaseConfig):
     mask_replace_token = '[MASK]'
     data_preprocessing = processing_olympics
 
-# TODO: huggingface.metrics.accuracy does not support non integer labels
+
 @register_task('olmpics_age_comparison')
 class Olmpic1Config(BaseConfig):
     task = 'olmpics_age_comparison'
@@ -162,9 +163,3 @@ class Olmpic1Config(BaseConfig):
     mask_replace_column = 'sentence'
     mask_replace_token = '[MASK]'
     data_preprocessing = processing_olympics
-
-def processing_winogrande(config, data):
-    def merge_options(example):
-        example['options'] = [example['option1'], example['option2']]
-        return example
-    return data.map(merge_options, remove_columns=['option1', 'option2'])
