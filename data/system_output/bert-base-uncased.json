@@ -1,0 +1,107 @@
+{
+ "plm": "bert-base-uncased",
+ "tasks": [
+   {
+     "task": "mnli",
+     "task_type": "classification",
+     "datasets": "glue/mnli",
+     "setting": "zero-shot",
+     "results": [
+       {
+         "template": "premise|?|<mask>|,|hypothesis|.|",
+         "answers": {
+           "2": [
+             "No",
+             "Meanwhile",
+             "But",
+             "Otherwise",
+             "Yet",
+             "Except",
+             "Alas",
+             "Conversely",
+             "However"
+           ],
+           "0": [
+             "Yes",
+             "Exactly",
+             "Right",
+             "Absolutely",
+             "Yeah",
+             "Therefore",
+             "Definitely",
+             "Indeed",
+             "Yep"
+           ],
+           "1": [
+             "Maybe",
+             "Probably",
+             "Perhaps",
+             "And",
+             "Possibly",
+             "Likely",
+             "Presumably",
+             "Also",
+             "Or"
+           ]
+         },
+         "accuracy": 0.3694345389709628,
+         "top5 choices": [
+           "and",
+           "but",
+           "no",
+           "yes",
+           "also"
+         ],
+         "calibrated": false
+       },
+       {
+         "template": "premise|!|<mask>|,|hypothesis|.|",
+         "answers": {
+           "2": [
+             "No",
+             "Meanwhile",
+             "But",
+             "Otherwise",
+             "Yet",
+             "Except",
+             "Alas",
+             "Conversely",
+             "However"
+           ],
+           "0": [
+             "Yes",
+             "Exactly",
+             "Right",
+             "Absolutely",
+             "Yeah",
+             "Therefore",
+             "Definitely",
+             "Indeed",
+             "Yep"
+           ],
+           "1": [
+             "Maybe",
+             "Probably",
+             "Perhaps",
+             "And",
+             "Possibly",
+             "Likely",
+             "Presumably",
+             "Also",
+             "Or"
+           ]
+         },
+         "accuracy": 0.38739213321,
+         "top5 choices": [
+           "and",
+           "but",
+           "no",
+           "yes",
+           "also"
+         ],
+         "calibrated": false
+       }
+     ]
+   }
+ ]
+}

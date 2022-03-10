@@ -1,0 +1,1895 @@
+{
+ "plm": "roberta-large",
+ "tasks": [
+  {
+   "task": "sst2",
+   "task_type": "sentiment_analysis",
+   "datasets": "glue/sst2",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "sentence|It was |<mask>|.",
+     "accuracy": 0.8646788990825688,
+     "top5_choices": [
+      " great",
+      " good",
+      " awful",
+      " terrible",
+      " bad"
+     ]
+    },
+    {
+     "template": "It was |<mask>|.|sentence|",
+     "accuracy": 0.8165137614678899,
+     "top5_choices": [
+      " great",
+      " good",
+      " awful",
+      " terrible",
+      " right"
+     ]
+    },
+    {
+     "template": "sentence|This is |<mask>|.",
+     "accuracy": 0.8887614678899083,
+     "top5_choices": [
+      " great",
+      " good",
+      " right",
+      " bad",
+      " terrible"
+     ]
+    },
+    {
+     "template": "This is |<mask>|.|sentence|",
+     "accuracy": 0.8314220183486238,
+     "top5_choices": [
+      " great",
+      " good",
+      " right",
+      " terrible",
+      " bad"
+     ]
+    },
+    {
+     "template": "sentence|A |<mask>| movie.",
+     "accuracy": 0.8612385321100917,
+     "top5_choices": [
+      " good",
+      " great",
+      " bad",
+      " decent",
+      " terrible"
+     ]
+    },
+    {
+     "template": "A |<mask>| movie.|sentence|",
+     "accuracy": 0.8107798165137615,
+     "top5_choices": [
+      " great",
+      " good",
+      " bad",
+      " decent",
+      " terrible"
+     ]
+    },
+    {
+     "template": "sentence|<mask>|!",
+     "accuracy": 0.8520642201834863,
+     "top5_choices": [
+      " great",
+      " bad",
+      " good",
+      " shocking",
+      " right"
+     ]
+    },
+    {
+     "template": "<mask>|,|sentence|",
+     "accuracy": 0.6720183486238532,
+     "top5_choices": [
+      " great",
+      " right",
+      " good",
+      " sound",
+      " positive"
+     ]
+    },
+    {
+     "template": "The author of the following review expresses a |<mask>| sentiment.|sentence|",
+     "accuracy": 0.5447247706422018,
+     "top5_choices": [
+      " positive",
+      " great",
+      " good",
+      " noble",
+      " negative"
+     ]
+    },
+    {
+     "template": "sentence|The author of the above review expresses a |<mask>| sentiment.",
+     "accuracy": 0.5217889908256881,
+     "top5_choices": [
+      " positive",
+      " good",
+      " great",
+      " negative",
+      " noble"
+     ]
+    }
+   ]
+  },
+  {
+   "task": "mnli",
+   "task_type": "natural_language_inference",
+   "datasets": "glue/mnli",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "premise|?|<mask>|,|hypothesis|.|",
+     "accuracy": 0.5213448802852776,
+     "top5_choices": [
+      " yes",
+      " no",
+      " however",
+      " indeed",
+      " and"
+     ]
+    },
+    {
+     "template": "premise|,|<mask>|,|hypothesis|.|",
+     "accuracy": 0.4456444218033622,
+     "top5_choices": [
+      " however",
+      " but",
+      " and",
+      " yes",
+      " therefore"
+     ]
+    },
+    {
+     "template": "premise|!|<mask>|,|hypothesis|.|",
+     "accuracy": 0.5282730514518594,
+     "top5_choices": [
+      " however",
+      " and",
+      " yes",
+      " also",
+      " but"
+     ]
+    },
+    {
+     "template": "The following two sentences are |<mask>|.|premise|.|hypothesis|.|",
+     "accuracy": 0.3554763117677025,
+     "top5_choices": [
+      " different",
+      " related",
+      " irrelevant",
+      " similar",
+      " linked"
+     ]
+    },
+    {
+     "template": "|premise|.|hypothesis|.|The above two sentences are |<mask>|.",
+     "accuracy": 0.3546612328069282,
+     "top5_choices": [
+      " different",
+      " similar",
+      " related",
+      " irrelevant",
+      " linked"
+     ]
+    },
+    {
+     "template": "Because |premise|, |hypothesis| is |<mask>|.",
+     "accuracy": 0.3234844625573102,
+     "top5_choices": [
+      " true",
+      " right",
+      " possible",
+      " correct",
+      " wrong"
+     ]
+    },
+    {
+     "template": "It is |<mask>| that |hypothesis|, because |premise|.",
+     "accuracy": 0.24971981660723383,
+     "top5_choices": [
+      " true",
+      " possible",
+      " correct",
+      " right",
+      " wrong"
+     ]
+    }
+   ]
+  },
+  {
+   "task": "mrpc",
+   "task_type": "sentence_paraphrasing",
+   "datasets": "glue/mrpc",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "sentence1|<mask>|,|sentence2",
+     "accuracy": 0.3884057971014493,
+     "top5_choices": [
+      " however",
+      " but",
+      " indeed",
+      " instead",
+      " yet"
+     ]
+    },
+    {
+     "template": "The following two sentences are |<mask>|.|sentence1|sentence2",
+     "accuracy": 0.6318840579710145,
+     "top5_choices": [
+      " different",
+      " related",
+      " linked",
+      " irrelevant",
+      " similar"
+     ]
+    },
+    {
+     "template": "sentence1|sentence2|The above two sentences are |<mask>|.",
+     "accuracy": 0.6440579710144928,
+     "top5_choices": [
+      " related",
+      " different",
+      " linked",
+      " similar",
+      " irrelevant"
+     ]
+    }
+   ]
+  },
+  {
+   "task": "qqp",
+   "task_type": "sentence_paraphrasing",
+   "datasets": "glue/qqp",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "question1|<mask>|,|question2",
+     "accuracy": 0.37462280484788524,
+     "top5_choices": [
+      " also",
+      " and",
+      " again",
+      " yes",
+      " similarly"
+     ]
+    },
+    {
+     "template": "The following two questions are |<mask>|.|question1|question2",
+     "accuracy": 0.36826613900568883,
+     "top5_choices": [
+      " similar",
+      " related",
+      " different",
+      " linked",
+      " irrelevant"
+     ]
+    },
+    {
+     "template": "question1|question2|The above two questions are |<mask>|.",
+     "accuracy": 0.3680930002473411,
+     "top5_choices": [
+      " related",
+      " similar",
+      " linked",
+      " irrelevant",
+      " different"
+     ]
+    }
+   ]
+  },
+  {
+   "task": "rotten_tomatoes",
+   "task_type": "sentiment_analysis",
+   "datasets": "rotten_tomatoes",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "text|It was |<mask>|.",
+     "accuracy": 0.8208255159474672,
+     "top5_choices": [
+      " great",
+      " good",
+      " awful",
+      " terrible",
+      " excellent"
+     ]
+    },
+    {
+     "template": "It was |<mask>|.|text|",
+     "accuracy": 0.7833020637898687,
+     "top5_choices": [
+      " great",
+      " good",
+      " awful",
+      " terrible",
+      " right"
+     ]
+    },
+    {
+     "template": "text|This is |<mask>|.",
+     "accuracy": 0.8602251407129456,
+     "top5_choices": [
+      " great",
+      " good",
+      " bad",
+      " right",
+      " terrible"
+     ]
+    },
+    {
+     "template": "This is |<mask>|.|text|",
+     "accuracy": 0.8142589118198874,
+     "top5_choices": [
+      " great",
+      " good",
+      " right",
+      " terrible",
+      " bad"
+     ]
+    },
+    {
+     "template": "text|A |<mask>| movie.",
+     "accuracy": 0.8330206378986866,
+     "top5_choices": [
+      " good",
+      " great",
+      " bad",
+      " decent",
+      " terrible"
+     ]
+    },
+    {
+     "template": "A |<mask>| movie.|text|",
+     "accuracy": 0.7645403377110694,
+     "top5_choices": [
+      " good",
+      " great",
+      " bad",
+      " terrible",
+      " decent"
+     ]
+    },
+    {
+     "template": "text|<mask>|!",
+     "accuracy": 0.799249530956848,
+     "top5_choices": [
+      " great",
+      " bad",
+      " good",
+      " shocking",
+      " right"
+     ]
+    },
+    {
+     "template": "<mask>|,|text|",
+     "accuracy": 0.6313320825515948,
+     "top5_choices": [
+      " great",
+      " right",
+      " good",
+      " sound",
+      " bad"
+     ]
+    },
+    {
+     "template": "The author of the following review expresses a |<mask>| sentiment.|text|",
+     "accuracy": 0.524390243902439,
+     "top5_choices": [
+      " positive",
+      " great",
+      " good",
+      " noble",
+      " negative"
+     ]
+    },
+    {
+     "template": "text|The author of the above review expresses a |<mask>| sentiment.",
+     "accuracy": 0.5112570356472795,
+     "top5_choices": [
+      " positive",
+      " good",
+      " great",
+      " negative",
+      " decent"
+     ]
+    }
+   ]
+  },
+  {
+   "task": "snli",
+   "task_type": "natural_language_inference",
+   "datasets": "snli",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "premise|?|<mask>|,|hypothesis|.|",
+     "accuracy": 0.514,
+     "top5_choices": [
+      " yes",
+      " right",
+      " no",
+      " indeed",
+      " yeah"
+     ]
+    },
+    {
+     "template": "premise|,|<mask>|,|hypothesis|.|",
+     "accuracy": 0.5054,
+     "top5_choices": [
+      " and",
+      " however",
+      " right",
+      " also",
+      " or"
+     ]
+    },
+    {
+     "template": "premise|!|<mask>|,|hypothesis|.|",
+     "accuracy": 0.5072,
+     "top5_choices": [
+      " and",
+      " also",
+      " however",
+      " yes",
+      " right"
+     ]
+    },
+    {
+     "template": "The following two sentences are |<mask>|.|premise|.|hypothesis|.|",
+     "accuracy": 0.3329,
+     "top5_choices": [
+      " related",
+      " similar",
+      " different",
+      " irrelevant",
+      " linked"
+     ]
+    },
+    {
+     "template": "|premise|.|hypothesis|.|The above two sentences are |<mask>|.",
+     "accuracy": 0.3329,
+     "top5_choices": [
+      " related",
+      " different",
+      " similar",
+      " linked",
+      " irrelevant"
+     ]
+    },
+    {
+     "template": "Because |premise|, |hypothesis| is |<mask>|.",
+     "accuracy": 0.3348,
+     "top5_choices": [
+      " right",
+      " wrong",
+      " possible",
+      " correct",
+      " confusing"
+     ]
+    },
+    {
+     "template": "It is |<mask>| that |hypothesis|, because |premise|.",
+     "accuracy": 0.4178,
+     "top5_choices": [
+      " possible",
+      " true",
+      " correct",
+      " wrong",
+      " confusing"
+     ]
+    }
+   ]
+  },
+  {
+   "task": "ag_news",
+   "task_type": "topic_classification",
+   "datasets": "ag_news",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "text|It is about |<mask>|.",
+     "accuracy": 0.49276315789473685,
+     "top5_choices": [
+      " money",
+      " business",
+      " politics",
+      " health",
+      " finance"
+     ]
+    },
+    {
+     "template": "It is about |<mask>|.|text|",
+     "accuracy": 0.5376315789473685,
+     "top5_choices": [
+      " money",
+      " business",
+      " politics",
+      " health",
+      " games"
+     ]
+    },
+    {
+     "template": "text|A piece of |<mask>| news.",
+     "accuracy": 0.616578947368421,
+     "top5_choices": [
+      " world",
+      " business",
+      " tech",
+      " trade",
+      " sports"
+     ]
+    },
+    {
+     "template": "A piece of |<mask>| news.|text|",
+     "accuracy": 0.6560526315789473,
+     "top5_choices": [
+      " world",
+      " business",
+      " tech",
+      " sports",
+      " trade"
+     ]
+    },
+    {
+     "template": "text|<mask>|!",
+     "accuracy": 0.6644736842105263,
+     "top5_choices": [
+      " world",
+      " trade",
+      " money",
+      " sports",
+      " politics"
+     ]
+    },
+    {
+     "template": "<mask>|,|text|",
+     "accuracy": 0.608421052631579,
+     "top5_choices": [
+      " business",
+      " world",
+      " government",
+      " tech",
+      " trade"
+     ]
+    },
+    {
+     "template": "The topic of the following news is |<mask>|.|text|",
+     "accuracy": 0.5626315789473684,
+     "top5_choices": [
+      " business",
+      " money",
+      " politics",
+      " finance",
+      " sports"
+     ]
+    },
+    {
+     "template": "text|The topic of the above news is |<mask>|.",
+     "accuracy": 0.5460526315789473,
+     "top5_choices": [
+      " money",
+      " business",
+      " politics",
+      " health",
+      " sports"
+     ]
+    }
+   ]
+  },
+  {
+   "task": "dbpedia_14",
+   "task_type": "topic_classification",
+   "datasets": "ag_news",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "text|It is about |<mask>|.",
+     "accuracy": 0.04671052631578947,
+     "top5_choices": [
+      " education",
+      " building",
+      " company",
+      " nature",
+      " film"
+     ]
+    },
+    {
+     "template": "It is about |<mask>|.|text|",
+     "accuracy": 0.028289473684210528,
+     "top5_choices": [
+      " nature",
+      " company",
+      " education",
+      " building",
+      " film"
+     ]
+    },
+    {
+     "template": "text|A |<mask>| article.",
+     "accuracy": 0.008947368421052631,
+     "top5_choices": [
+      " text",
+      " company",
+      " nature",
+      " building",
+      " film"
+     ]
+    },
+    {
+     "template": "A |<mask>| article.|text|",
+     "accuracy": 0.030131578947368422,
+     "top5_choices": [
+      " text",
+      " company",
+      " nature",
+      " village",
+      " film"
+     ]
+    },
+    {
+     "template": "text|<mask>|!",
+     "accuracy": 0.07144736842105263,
+     "top5_choices": [
+      " education",
+      " text",
+      " company",
+      " film",
+      " nature"
+     ]
+    },
+    {
+     "template": "<mask>|,|text|",
+     "accuracy": 0.05434210526315789,
+     "top5_choices": [
+      " company",
+      " film",
+      " education",
+      " text",
+      " building"
+     ]
+    },
+    {
+     "template": "The topic of the following article is |<mask>|.|text|",
+     "accuracy": 0.14986842105263157,
+     "top5_choices": [
+      " education",
+      " company",
+      " transportation",
+      " athlete",
+      " film"
+     ]
+    },
+    {
+     "template": "text|The topic of the above article is |<mask>|.",
+     "accuracy": 0.1976315789473684,
+     "top5_choices": [
+      " education",
+      " transportation",
+      " company",
+      " text",
+      " film"
+     ]
+    }
+   ]
+  },
+  {
+   "task": "lama",
+   "task_type": "knowledge_probing",
+   "datasets": "lama.json",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "Specified for each sample",
+     "accuracy": 0.28701932274727376
+    }
+   ]
+  },
+  {
+   "task": "olmpics_age_comparison",
+   "task_type": "reasoning",
+   "datasets": "olympics/number_comparison_age_compare_masked_dev.json",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "sentence",
+     "accuracy": 0.99
+    }
+   ]
+  },
+  {
+   "task": "olmpics_always_never",
+   "task_type": "reasoning",
+   "datasets": "olmpics/coffee_cats_quantifiers_dev.json",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "sentence",
+     "accuracy": 0.15714285714285714
+    }
+   ]
+  },
+  {
+   "task": "olmpics_antonym_negation",
+   "task_type": "reasoning",
+   "datasets": "olmpics/antonym_synonym_negation_dev.json",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "sentence",
+     "accuracy": 0.75
+    }
+   ]
+  },
+  {
+   "task": "olmpics_encyclopedic_composition",
+   "task_type": "reasoning",
+   "datasets": "olmpics/composition_v2_dev.json",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "sentence",
+     "accuracy": 0.348
+    }
+   ]
+  },
+  {
+   "task": "olmpics_multihop_composition",
+   "task_type": "reasoning",
+   "datasets": "olmpics/compositional_comparison_dev.json",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "sentence",
+     "accuracy": 0.306
+    }
+   ]
+  },
+  {
+   "task": "olmpics_objects_comparison",
+   "task_type": "reasoning",
+   "datasets": "olmpics/size_comparison_dev.json",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "sentence",
+     "accuracy": 0.89
+    }
+   ]
+  },
+  {
+   "task": "olmpics_property_conjunction",
+   "task_type": "reasoning",
+   "datasets": "olmpics/conjunction_filt4_dev.json",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "sentence",
+     "accuracy": 0.494824016563147
+    }
+   ]
+  },
+  {
+   "task": "olmpics_taxonomy_conjunction",
+   "task_type": "reasoning",
+   "datasets": "olmpics/hypernym_conjunction_dev.json",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "sentence",
+     "accuracy": 0.4240400667779633
+    }
+   ]
+  },
+  {
+   "task": "winogrande_xs",
+   "task_type": "coreference_resolution",
+   "datasets": "winogrande/winogrande_xs",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "sentence",
+     "accuracy": 0.5217048145224941
+    }
+   ]
+  },
+  {
+   "task": "rte",
+   "task_type": "natural_language_inference",
+   "datasets": "glue/rte",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "sentence1|?|<mask>|,|sentence2|.|",
+     "accuracy": 0.6425992779783394,
+     "top5_choices": [
+      " yes",
+      " however",
+      " indeed",
+      " instead",
+      " no"
+     ]
+    },
+    {
+     "template": "sentence1|,|<mask>|,|sentence2|.|",
+     "accuracy": 0.6137184115523465,
+     "top5_choices": [
+      " however",
+      " but",
+      " therefore",
+      " indeed",
+      " yes"
+     ]
+    },
+    {
+     "template": "sentence1|!|<mask>|,|sentence2|.|",
+     "accuracy": 0.6642599277978339,
+     "top5_choices": [
+      " however",
+      " yes",
+      " indeed",
+      " instead",
+      " therefore"
+     ]
+    },
+    {
+     "template": "The following two sentences are |<mask>|.|sentence1|.|sentence2|.|",
+     "accuracy": 0.5270758122743683,
+     "top5_choices": [
+      " related",
+      " linked",
+      " different",
+      " similar",
+      " like"
+     ]
+    },
+    {
+     "template": "|sentence1|.|sentence2|.|The above two sentences are |<mask>|.",
+     "accuracy": 0.5234657039711191,
+     "top5_choices": [
+      " related",
+      " different",
+      " linked",
+      " similar",
+      " equal"
+     ]
+    },
+    {
+     "template": "Because |sentence1|, |sentence2| is |<mask>|.",
+     "accuracy": 0.5090252707581228,
+     "top5_choices": [
+      " true",
+      " right",
+      " correct",
+      " real",
+      " wrong"
+     ]
+    },
+    {
+     "template": "It is |<mask>| that |sentence2|, because |sentence1|.",
+     "accuracy": 0.5703971119133574,
+     "top5_choices": [
+      " true",
+      " correct",
+      " right",
+      " wrong",
+      " false"
+     ]
+    }
+   ]
+  },
+  {
+   "task": "conll2003",
+   "task_type": "name_entity_recognition",
+   "datasets": "conll2003",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "sentence|<e>|is |<mask>|entity.",
+     "f1": 0.005578037843158701
+    }
+   ]
+  },
+  {
+   "task": "wikiann",
+   "task_type": "name_entity_recognition",
+   "datasets": "wikiann/en",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "sentence|<e>|is |<mask>|entity.",
+     "f1": 0.014559614000931137
+    }
+   ]
+  },
+  {
+   "task": "absa-laptop",
+   "task_type": "aspect_based_sentiment_analysis",
+   "datasets": "absa/test-laptop.tsv",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "sentence|aspect|was|<mask>|.",
+     "accuracy": 0.780564263322884,
+     "top5_choices": [
+      " great",
+      " good",
+      " bad",
+      " excellent",
+      " terrible"
+     ]
+    },
+    {
+     "template": "aspect|was|<mask>|.|sentence|",
+     "accuracy": 0.7899686520376176,
+     "top5_choices": [
+      " good",
+      " great",
+      " bad",
+      " excellent",
+      " terrible"
+     ]
+    },
+    {
+     "template": "sentence|The sentiment of |aspect|is|<mask>|.",
+     "accuracy": 0.835423197492163,
+     "top5_choices": [
+      " good",
+      " great",
+      " excellent",
+      " right",
+      " bad"
+     ]
+    },
+    {
+     "template": "The sentiment of |aspect|is|<mask>|.|sentence|",
+     "accuracy": 0.8072100313479624,
+     "top5_choices": [
+      " good",
+      " great",
+      " excellent",
+      " right",
+      " bad"
+     ]
+    },
+    {
+     "template": "sentence|aspect|,|<mask>|!",
+     "accuracy": 0.835423197492163,
+     "top5_choices": [
+      " great",
+      " good",
+      " right",
+      " excellent",
+      " bad"
+     ]
+    },
+    {
+     "template": "aspect|:|<mask>|,|sentence",
+     "accuracy": 0.8181818181818182,
+     "top5_choices": [
+      " great",
+      " good",
+      " right",
+      " excellent",
+      " sound"
+     ]
+    },
+    {
+     "template": "The author of the following review expresses a |<mask>| sentiment on |aspect|.|sentence",
+     "accuracy": 0.8197492163009404,
+     "top5_choices": [
+      " positive",
+      " negative",
+      " great",
+      " good",
+      " pleasant"
+     ]
+    },
+    {
+     "template": "sentence|The author of the above review expresses a |<mask>| sentiment on |aspect|.",
+     "accuracy": 0.8244514106583072,
+     "top5_choices": [
+      " positive",
+      " good",
+      " great",
+      " negative",
+      " decent"
+     ]
+    }
+   ]
+  },
+  {
+   "task": "absa-rest14",
+   "task_type": "aspect_based_sentiment_analysis",
+   "datasets": "absa/test-rest14.tsv",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "sentence|aspect|was|<mask>|.",
+     "accuracy": 0.85,
+     "top5_choices": [
+      " great",
+      " good",
+      " excellent",
+      " bad",
+      " terrible"
+     ]
+    },
+    {
+     "template": "aspect|was|<mask>|.|sentence|",
+     "accuracy": 0.8589285714285714,
+     "top5_choices": [
+      " good",
+      " great",
+      " excellent",
+      " terrible",
+      " bad"
+     ]
+    },
+    {
+     "template": "sentence|The sentiment of |aspect|is|<mask>|.",
+     "accuracy": 0.8875,
+     "top5_choices": [
+      " good",
+      " great",
+      " excellent",
+      " right",
+      " positive"
+     ]
+    },
+    {
+     "template": "The sentiment of |aspect|is|<mask>|.|sentence|",
+     "accuracy": 0.8696428571428572,
+     "top5_choices": [
+      " good",
+      " great",
+      " excellent",
+      " right",
+      " pleasant"
+     ]
+    },
+    {
+     "template": "sentence|aspect|,|<mask>|!",
+     "accuracy": 0.8607142857142858,
+     "top5_choices": [
+      " great",
+      " good",
+      " excellent",
+      " right",
+      " bad"
+     ]
+    },
+    {
+     "template": "aspect|:|<mask>|,|sentence",
+     "accuracy": 0.8625,
+     "top5_choices": [
+      " good",
+      " great",
+      " right",
+      " excellent",
+      " bad"
+     ]
+    },
+    {
+     "template": "The author of the following review expresses a |<mask>| sentiment on |aspect|.|sentence",
+     "accuracy": 0.8714285714285714,
+     "top5_choices": [
+      " positive",
+      " great",
+      " good",
+      " negative",
+      " pleasant"
+     ]
+    },
+    {
+     "template": "sentence|The author of the above review expresses a |<mask>| sentiment on |aspect|.",
+     "accuracy": 0.8464285714285714,
+     "top5_choices": [
+      " positive",
+      " good",
+      " negative",
+      " great",
+      " decent"
+     ]
+    }
+   ]
+  },
+  {
+   "task": "absa-twitter",
+   "task_type": "aspect_based_sentiment_analysis",
+   "datasets": "absa/test-twitter.tsv",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "sentence|aspect|was|<mask>|.",
+     "accuracy": 0.7196531791907514,
+     "top5_choices": [
+      " good",
+      " great",
+      " bad",
+      " terrible",
+      " right"
+     ]
+    },
+    {
+     "template": "aspect|was|<mask>|.|sentence|",
+     "accuracy": 0.6676300578034682,
+     "top5_choices": [
+      " good",
+      " great",
+      " bad",
+      " right",
+      " terrible"
+     ]
+    },
+    {
+     "template": "sentence|The sentiment of |aspect|is|<mask>|.",
+     "accuracy": 0.7861271676300579,
+     "top5_choices": [
+      " great",
+      " good",
+      " right",
+      " excellent",
+      " terrible"
+     ]
+    },
+    {
+     "template": "The sentiment of |aspect|is|<mask>|.|sentence|",
+     "accuracy": 0.7557803468208093,
+     "top5_choices": [
+      " great",
+      " good",
+      " right",
+      " terrible",
+      " excellent"
+     ]
+    },
+    {
+     "template": "sentence|aspect|,|<mask>|!",
+     "accuracy": 0.8005780346820809,
+     "top5_choices": [
+      " great",
+      " good",
+      " bad",
+      " right",
+      " excellent"
+     ]
+    },
+    {
+     "template": "aspect|:|<mask>|,|sentence",
+     "accuracy": 0.7601156069364162,
+     "top5_choices": [
+      " great",
+      " good",
+      " right",
+      " bad",
+      " excellent"
+     ]
+    },
+    {
+     "template": "The author of the following review expresses a |<mask>| sentiment on |aspect|.|sentence",
+     "accuracy": 0.7471098265895953,
+     "top5_choices": [
+      " negative",
+      " positive",
+      " great",
+      " good",
+      " decent"
+     ]
+    },
+    {
+     "template": "sentence|The author of the above review expresses a |<mask>| sentiment on |aspect|.",
+     "accuracy": 0.7471098265895953,
+     "top5_choices": [
+      " negative",
+      " positive",
+      " great",
+      " good",
+      " decent"
+     ]
+    }
+   ]
+  },
+  {
+   "task": "sem_eval_2014_task_1",
+   "task_type": "natural_language_inference",
+   "datasets": "sem_eval_2014_task_1",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "premise|?|<mask>|,|hypothesis|.|",
+     "accuracy": 0.39679318043434136,
+     "top5_choices": [
+      " yes",
+      " no",
+      " right",
+      " indeed",
+      " instead"
+     ]
+    },
+    {
+     "template": "premise|,|<mask>|,|hypothesis|.|",
+     "accuracy": 0.33570123807590824,
+     "top5_choices": [
+      " however",
+      " and",
+      " or",
+      " but",
+      " right"
+     ]
+    },
+    {
+     "template": "premise|!|<mask>|,|hypothesis|.|",
+     "accuracy": 0.49928962857722753,
+     "top5_choices": [
+      " however",
+      " and",
+      " yes",
+      " right",
+      " also"
+     ]
+    },
+    {
+     "template": "The following two sentences are |<mask>|.|premise|.|hypothesis|.|",
+     "accuracy": 0.28699005480008116,
+     "top5_choices": [
+      " irrelevant",
+      " different",
+      " related",
+      " similar",
+      " linked"
+     ]
+    },
+    {
+     "template": "premise|.|hypothesis|.|The above two sentences are |<mask>|.",
+     "accuracy": 0.28699005480008116,
+     "top5_choices": [
+      " irrelevant",
+      " different",
+      " related",
+      " similar",
+      " linked"
+     ]
+    },
+    {
+     "template": "Because |premise|, |hypothesis| is |<mask>|.",
+     "accuracy": 0.4720925512482241,
+     "top5_choices": [
+      " right",
+      " wrong",
+      " possible",
+      " correct",
+      " true"
+     ]
+    },
+    {
+     "template": "It is |<mask>| that |hypothesis|, because |premise|.",
+     "accuracy": 0.4497665922468033,
+     "top5_choices": [
+      " possible",
+      " true",
+      " wrong",
+      " correct",
+      " false"
+     ]
+    }
+   ]
+  },
+  {
+   "task": "medical_questions_pairs",
+   "task_type": "sentence_paraphrasing",
+   "datasets": "medical_questions_pairs",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "question_1|<mask>|,|question_2",
+     "accuracy": 0.509514435695538,
+     "top5_choices": [
+      " also",
+      " yes",
+      " and",
+      " again",
+      " no"
+     ]
+    },
+    {
+     "template": "The following two questions are |<mask>|.|question_1|question_2",
+     "accuracy": 0.5,
+     "top5_choices": [
+      " related",
+      " similar",
+      " different",
+      " linked",
+      " irrelevant"
+     ]
+    },
+    {
+     "template": "question_1|question_2|The above two questions are |<mask>|.",
+     "accuracy": 0.5003280839895013,
+     "top5_choices": [
+      " related",
+      " similar",
+      " linked",
+      " different",
+      " irrelevant"
+     ]
+    }
+   ]
+  },
+  {
+   "task": "paws",
+   "task_type": "sentence_paraphrasing",
+   "datasets": "paws/labeled_final",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "sentence1|<mask>|,|sentence2",
+     "accuracy": 0.48475,
+     "top5_choices": [
+      " however",
+      " and",
+      " also",
+      " but",
+      " no"
+     ]
+    },
+    {
+     "template": "The following two sentences are |<mask>|.|sentence1|sentence2",
+     "accuracy": 0.446,
+     "top5_choices": [
+      " related",
+      " different",
+      " irrelevant",
+      " similar",
+      " linked"
+     ]
+    },
+    {
+     "template": "sentence1|sentence2|The above two sentences are |<mask>|.",
+     "accuracy": 0.442,
+     "top5_choices": [
+      " different",
+      " related",
+      " linked",
+      " similar",
+      " irrelevant"
+     ]
+    }
+   ]
+  },
+  {
+   "task": "qnli",
+   "task_type": "natural_language_inference",
+   "datasets": "glue/qnli",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "question|<mask>|,|sentence|",
+     "accuracy": 0.5928976752699981,
+     "top5_choices": [
+      " however",
+      " indeed",
+      " yes",
+      " therefore",
+      " instead"
+     ]
+    },
+    {
+     "template": "The following two sentences are |<mask>|.|question|sentence",
+     "accuracy": 0.4946000366099213,
+     "top5_choices": [
+      " related",
+      " different",
+      " similar",
+      " linked",
+      " like"
+     ]
+    },
+    {
+     "template": "question|sentence|The above two sentences are |<mask>|.",
+     "accuracy": 0.4946000366099213,
+     "top5_choices": [
+      " different",
+      " similar",
+      " linked",
+      " related",
+      " equal"
+     ]
+    }
+   ]
+  },
+  {
+   "task": "wnli",
+   "task_type": "natural_language_inference",
+   "datasets": "glue/wnli",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "sentence1|?|<mask>|,|sentence2|.|",
+     "accuracy": 0.5352112676056338,
+     "top5_choices": [
+      " yes",
+      " no",
+      " indeed",
+      " yeah",
+      " right"
+     ]
+    },
+    {
+     "template": "sentence1|,|<mask>|,|sentence2|.|",
+     "accuracy": 0.5352112676056338,
+     "top5_choices": [
+      " however",
+      " but",
+      " yes",
+      " no",
+      " therefore"
+     ]
+    },
+    {
+     "template": "sentence1|!|<mask>|,|sentence2|.|",
+     "accuracy": 0.4647887323943662,
+     "top5_choices": [
+      " yes",
+      " no",
+      " indeed",
+      " yeah",
+      " however"
+     ]
+    },
+    {
+     "template": "The following two sentences are |<mask>|.|sentence1|.|sentence2|.|",
+     "accuracy": 0.43661971830985913,
+     "top5_choices": [
+      " related",
+      " similar",
+      " linked",
+      " different",
+      " like"
+     ]
+    },
+    {
+     "template": "|sentence1|.|sentence2|.|The above two sentences are |<mask>|.",
+     "accuracy": 0.43661971830985913,
+     "top5_choices": [
+      " related",
+      " similar",
+      " linked",
+      " different",
+      " equal"
+     ]
+    },
+    {
+     "template": "Because |sentence1|, |sentence2| is |<mask>|.",
+     "accuracy": 0.39436619718309857,
+     "top5_choices": [
+      " right",
+      " true",
+      " wrong",
+      " correct",
+      " real"
+     ]
+    },
+    {
+     "template": "It is |<mask>| that |sentence2|, because |sentence1|.",
+     "accuracy": 0.4225352112676056,
+     "top5_choices": [
+      " true",
+      " right",
+      " correct",
+      " wrong",
+      " false"
+     ]
+    }
+   ]
+  },
+  {
+   "task": "ncbi_disease",
+   "task_type": "name_entity_recognition",
+   "datasets": "ncbi_disease",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "sentence|<e>|is |<mask>|entity.",
+     "f1": 0.025524497291913095
+    }
+   ]
+  },
+  {
+   "task": "boolq",
+   "task_type": "yes/no_question_answering",
+   "datasets": "superglue/boolq",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "passage|.|question|?|<mask>|.",
+     "accuracy": 0.6211009174311927,
+     "top5_choices": [
+      " yes",
+      " no",
+      " true",
+      " right",
+      " correct"
+     ]
+    },
+    {
+     "template": "Question: |question|?|Answer: |<mask>|.|passage|.|",
+     "accuracy": 0.645565749235474,
+     "top5_choices": [
+      " yes",
+      " no",
+      " true",
+      " correct",
+      " right"
+     ]
+    },
+    {
+     "template": "passage|.|Based on the previous passage, |question|?|Answer: |<mask>|.",
+     "accuracy": 0.654434250764526,
+     "top5_choices": [
+      " yes",
+      " no",
+      " true",
+      " correct",
+      " false"
+     ]
+    },
+    {
+     "template": "Based on the following passage, |question|?|Answer: |<mask>|.|passage|.",
+     "accuracy": 0.6507645259938838,
+     "top5_choices": [
+      " yes",
+      " no",
+      " true",
+      " correct",
+      " right"
+     ]
+    },
+    {
+     "template": "question|?|<mask>|.|passage|.",
+     "accuracy": 0.6214067278287462,
+     "top5_choices": [
+      " no",
+      " yes",
+      " true",
+      " right",
+      " correct"
+     ]
+    },
+    {
+     "template": "passage|.|Question: |question|?|Answer: |<mask>|.",
+     "accuracy": 0.6452599388379205,
+     "top5_choices": [
+      " no",
+      " yes",
+      " true",
+      " correct",
+      " right"
+     ]
+    }
+   ]
+  },
+  {
+   "task": "mc_taco",
+   "task_type": "yes/no_question_answering",
+   "datasets": "mc_taco",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "sentence|question|answer|.|<mask>|.",
+     "accuracy": 0.3380639694979877,
+     "top5_choices": [
+      " yes",
+      " no",
+      " right",
+      " true",
+      " wrong"
+     ]
+    },
+    {
+     "template": "sentence|question|A |<mask>| answer is |answer|.",
+     "accuracy": 0.3385935183223893,
+     "top5_choices": [
+      " correct",
+      " true",
+      " real",
+      " valid",
+      " right"
+     ]
+    },
+    {
+     "template": "sentence|Question: |question|Answer: |answer|.|This answer is |<mask>|.",
+     "accuracy": 0.6139589070112265,
+     "top5_choices": [
+      " wrong",
+      " correct",
+      " false",
+      " true",
+      " misleading"
+     ]
+    },
+    {
+     "template": "Question: |question|Answer: |answer|.|sentence|This answer is |<mask>|.",
+     "accuracy": 0.6103579750052955,
+     "top5_choices": [
+      " correct",
+      " wrong",
+      " true",
+      " false",
+      " misleading"
+     ]
+    },
+    {
+     "template": "sentence|Based on the previous sentence, |question|A |<mask>| answer is |answer|.",
+     "accuracy": 0.33880533785214995,
+     "top5_choices": [
+      " correct",
+      " true",
+      " valid",
+      " real",
+      " right"
+     ]
+    },
+    {
+     "template": "Based on the following sentence, |question|A |<mask>| answer is |answer|.|sentence|.",
+     "accuracy": 0.33965261597119256,
+     "top5_choices": [
+      " correct",
+      " true",
+      " valid",
+      " real",
+      " right"
+     ]
+    }
+   ]
+  },
+  {
+   "task": "wnut_17",
+   "task_type": "name_entity_recognition",
+   "datasets": "wnut_17",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "sentence|<e>|is |<mask>|entity.",
+     "f1": 0.009505703422053232
+    }
+   ]
+  },
+  {
+   "task": "yelp_polarity",
+   "task_type": "sentiment_analysis",
+   "datasets": "yelp_polarity",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "text|It was |<mask>|.",
+     "accuracy": 0.8726842105263158,
+     "top5_choices": [
+      " great",
+      " good",
+      " awful",
+      " terrible",
+      " excellent"
+     ]
+    },
+    {
+     "template": "It was |<mask>|.|text",
+     "accuracy": 0.9068421052631579,
+     "top5_choices": [
+      " great",
+      " good",
+      " terrible",
+      " awful",
+      " bad"
+     ]
+    },
+    {
+     "template": "text|This is |<mask>|.",
+     "accuracy": 0.913,
+     "top5_choices": [
+      " great",
+      " good",
+      " bad",
+      " terrible",
+      " right"
+     ]
+    },
+    {
+     "template": "This is |<mask>|.|text",
+     "accuracy": 0.921,
+     "top5_choices": [
+      " great",
+      " good",
+      " terrible",
+      " bad",
+      " awful"
+     ]
+    },
+    {
+     "template": "text|<mask>|!",
+     "accuracy": 0.833,
+     "top5_choices": [
+      " great",
+      " good",
+      " bad",
+      " excellent",
+      " right"
+     ]
+    },
+    {
+     "template": "<mask>|,|text|",
+     "accuracy": 0.6506052631578947,
+     "top5_choices": [
+      " great",
+      " good",
+      " right",
+      " excellent",
+      " bad"
+     ]
+    },
+    {
+     "template": "The author of the following review expresses a |<mask>| sentiment.|text",
+     "accuracy": 0.538,
+     "top5_choices": [
+      " positive",
+      " great",
+      " good",
+      " noble",
+      " decent"
+     ]
+    },
+    {
+     "template": "text|The author of the above review expresses a |<mask>| sentiment.",
+     "accuracy": 0.5082368421052632,
+     "top5_choices": [
+      " positive",
+      " good",
+      " great",
+      " negative",
+      " decent"
+     ]
+    }
+   ]
+  },
+  {
+   "task": "trec",
+   "task_type": "topic_classification",
+   "datasets": "trec",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "text|It is about |<mask>|.",
+     "accuracy": 0.272,
+     "top5_choices": [
+      " people",
+      " numbers",
+      " place",
+      " substance",
+      " representation"
+     ]
+    },
+    {
+     "template": "It is about |<mask>|.|text|",
+     "accuracy": 0.24,
+     "top5_choices": [
+      " numbers",
+      " people",
+      " representation",
+      " substance",
+      " place"
+     ]
+    },
+    {
+     "template": "text|A question of |<mask>|.",
+     "accuracy": 0.194,
+     "top5_choices": [
+      " position",
+      " description",
+      " explanation",
+      " numbers",
+      " representation"
+     ]
+    },
+    {
+     "template": "A question of |<mask>|.|text|",
+     "accuracy": 0.204,
+     "top5_choices": [
+      " description",
+      " explanation",
+      " position",
+      " representation",
+      " substance"
+     ]
+    },
+    {
+     "template": "text|<mask>|!",
+     "accuracy": 0.26,
+     "top5_choices": [
+      " people",
+      " numbers",
+      " figure",
+      " explanation",
+      " description"
+     ]
+    },
+    {
+     "template": "<mask>|,|text|",
+     "accuracy": 0.194,
+     "top5_choices": [
+      " figure",
+      " people",
+      " person",
+      " place",
+      " numbers"
+     ]
+    },
+    {
+     "template": "The topic of the following question is |<mask>|.|text|",
+     "accuracy": 0.228,
+     "top5_choices": [
+      " people",
+      " explanation",
+      " description",
+      " human",
+      " numbers"
+     ]
+    },
+    {
+     "template": "text|The topic of the above question is |<mask>|.",
+     "accuracy": 0.23,
+     "top5_choices": [
+      " explanation",
+      " description",
+      " people",
+      " numbers",
+      " human"
+     ]
+    }
+   ]
+  },
+  {
+   "task": "sem_eval_2010_task_8",
+   "task_type": "relation_extraction",
+   "datasets": "sem_eval_2010_task_8",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "sentence|The|<mask>|<e1>|was|<mask>|to the|<mask>|<e2>|.",
+     "f1": 0.038645564961354434
+    }
+   ]
+  },
+  {
+   "task": "conll2000",
+   "task_type": "chunking",
+   "datasets": "conll2000",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "sentence|<e>|is |<mask>|phrase.",
+     "f1": 0.0044430083205428544
+    }
+   ]
+  },
+  {
+   "task": "conll2003_chunk",
+   "task_type": "chunking",
+   "datasets": "conll2003",
+   "setting": "zero-shot",
+   "results": [
+    {
+     "template": "sentence|<e>|is |<mask>|phrase.",
+     "f1": 0.023779193205944796
+    }
+   ]
+  }
+ ]
+}
