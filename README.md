@@ -4,158 +4,37 @@
 
 ## Install
 ```shell
-pip install -r requirements.txt
+git clone https://github.com/ExpressAI/omneval.git
+cd omneval
+pip install -e .
 ```
-## Run
+## Basic usage
 ```python
-python main.py ${TASK} --arch ${ARCH}
+omneval ${TASK} --arch ${ARCH}
 # e.g
-python main.py sst2 --arch roberta-large
+omneval sst2 --arch roberta-large
 ```
+
+## Available configurations
+### task-related configurations
+check files in `omneval/tasks/{task_type}/task_zoo.py` for explanation of each task-related parameters.
+
+An example of task configurations can be found below. 
+
+### evaluation-related configurations
+
+For evaluation-related configurations(PLMs, output_dir etc.), pleaqse check `omneval/tasks/{task_type}/task_zoo.py` for details. 
 
 ## Code Structure
-Base class 包含
-1. BaseConfig: 有关task的任何参数设置：比如指定数据路径，设置prompt，label_mapping等等
+Three main classes: 
+1. BaseConfig: a configuration class to store task-related information(datasets, prompts etc. )
 
-An Example:
-```python
-# 'sst2' is the unique task identifier for this task
-@register_task('sst2_m')
-class SST2Config(BaseConfig):
-    # Required: The unique task identifier for this task
-    task = 'sst2_m'
-    # Required: the task type, each task type corresponds to a data processor
-    task_type = 'classification_m'
-    # Required: Either input a file name that can be tracked in the environment(like  '${PATH_TO_FILE}/${FILE_NAME}')
-    # or a str or list, which is a dataset name for huggingface's `datasets`
-    dataset_name = ['glue', 'sst2']  # datasets.load_dataset('glue', 'sst2')
-    # dataset_name = 'lama.json'  # datasets.load_dataset('json', 'lama.json')
-    # dataset_name = 'lama '    # datasets.load_dataset('lama')
-    # Required: The metrics used for this task
-    metrics = 'accuracy'
-    # Optional: The data split used for evaluation: default 'test'
-    test_subset = 'validation'
+2. BaseProcessor: Import, preprocess and prompt datasets
 
-    # Below are parameters for text classification
-    # Required: prompt template:
-    # e.g  `sentence` is the column name for the raw text "It was" and "." are templates, <mask> is the masked poition
-    # Then the template is "<text> It was <mask>."
-    templates = [
-        'sentence|It was |<mask>|.'
-    ]
-    # Required: The label for this task
-    labels = [0, 1]
-    # Required: Manually-designed label for each class, the order of `labels` and label_mapping` should match
-    label_mappings = [
-    ['bad', 'terrible', 'awful', 'dire', 'dread', 'dreadful', 'fearful', 'grand', 'horrible', 'imposing', 'majestic', 'shocking', 'solemn',],
-    ['great', 'good', 'right', 'sound', 'pious', 'benevolent', 'competent', 'real', 'considerable', 'righteous', 'proper', 'upright', 'excellent']
-    ]
-    # Optional: choose the majority class of highest-topk label candidates
-    topk = 7
-```
-
-
-2. BaseProcessor: 导入，处理数据，建立prompt等，导入`arch`和`config`以初始化
-  主要需要改写的方法：
-  1. generate_dataset(): 根据 `config.dataset_name`读取了原数据成`dataset`后，将每一个example进行改写后返回新的`dataset`，直接传给`Evaluator`
-
-```python
-class BaseProcessor(object):
-    """The base processor class"""
-
-    def __init__(self, arch, config):
-        self.config = config    # task config
-        self.raw_data = self.build_dataset()
-        self.tokenizer = self.build_tokenizer(arch)
-
-    def build_dataset(self):
-        """Import the raw dataset"""
-        ...
-
-    def build_tokenizer(self, arch):
-        """Build the tokenizer given model arch name"""
-        ...
-
-    def generate_dataset(self, prompt_order=0):
-        """Prompting each instance and build dataset directly for the Evaluator"""
-        raise NotImplementedError
-
-    def generate_aux_inputs(self, prompt_order=0):
-        """Generate other inputs required for the dataset"""
-        ...
-
-    @property
-    def prompt_count(self):
-        """Count for number of prompt schema"""
-        raise NotImplementedError
-
-    @property
-    def task_info(self):
-        """Print the task info"""
-        ...
-```
   
-3. `BaseEvaluator`:接收`processor`生成的`dataset`和基于`arch`初始化的预训练模型，对指定任务进行zero-shot evaluation
-主要需要修改的函数：
-  1. `preprocessing`(dataset, \*\*kwargs):接收 `processor.generate_dataset()`和`processor.generate_aux_input()`  的输出，在`decode`前进行针对`evaluation`的预处理
-  2. `decode`:输入`preprocessing`步生成的`dataset`以及`**kwargs`
-```python
-class BaseEvaluator(object):
+3. `BaseEvaluator`:recieve the`dataset` from the processor，initialize the model and conduxt zero-shot evaluations. 
 
-    def __init__(self, arch, config):
-        self.config = config
-        self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-        self.model = self.build_model(arch)
-        self.tokenizer = self.build_tokenizer(arch)
-        self.metrics_fn = build_metrics(config.metrics)
-
-    def build_model(self, arch):
-        """Initialize model for evaluation"""
-        raise NotImplementedError
-
-    def build_tokenizer(self, arch):
-        """
-        Build Tokenizer for the evaluator
-        :param arch: model arch
-        :return: the tokenizer
-        """
-        ...
+The definitions and attributes of three base classes can be found in `omneval/tasks/__init__.py`
 
 
-    def preprocessing(self, dataset, **kwargs):
-        """Preprocessing the dataset and other auxiliary inputs"""
-        ...
-        return dataset, kwargs
-
-
-    def decode(self, batch, **kwargs):
-        """
-        Generate the predictions for each test instance
-        :param dataset: dataset generated by the evaluator's `preprocessing`
-        :param kwargs: other input generated by the evaluator's `preprocessing`
-        :return: The evaluation metrics
-        """
-        raise NotImplementedError
-
-
-    def eval(self, dataset, **kwargs):
-        """
-        Generate the evaluation metrics and analysis (call: self.decode function)
-        :param dataset: dataset generated by the processor's `generate_dataset`
-        :param kwargs: other input generated by the processor's `generate_aux_input`
-        :return: The evaluation metrics
-        """
-        dataset, kwargs = self.preprocessing(dataset, **kwargs)
-        label_name = getattr(self.config, 'label_name', 'label')
-        dataloader = DataLoader(dataset, batch_size=self.config.eval_batch_size, collate_fn=collate_fn)
-        self.model.eval()
-        predictions = []
-        labels = []
-        for batch in tqdm(dataloader):
-            label = batch.pop(label_name).view(-1).cpu().detach().tolist()
-            batch = {k: v.to(self.device) for k, v in batch.items()}
-            predictions += self.decode(batch, **kwargs)
-            labels += label
-        metrics = self.metrics_fn(labels, predictions)
-        return metrics
-```
+### To be continued 
