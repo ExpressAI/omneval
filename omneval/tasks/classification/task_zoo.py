@@ -51,6 +51,9 @@ class SST2Config(BaseConfig):
     # Optional: choose the appropriate inference settings
     eval_batch_size = 32
     max_seq_length = 128
+    # Optional: data processing method, an example can be found in 'processing_asba' for datasets of
+    # the aspect-based sentiment analysis
+    data_preprocessing = None
 
 
 @register_task('imdb')
