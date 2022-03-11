@@ -64,7 +64,6 @@ class BaseProcessor(object):
         # Options for user-defined filter functions
         if hasattr(self.config, 'filter_fn'):
             filter_fn = getattr(self.config, 'filter_fn', None)
-            assert callable(filter_fn)
         try:
             df = df.filter(filter_fn)
             logging.info("Use config.filter_fn to filter the dataset, got %d examples" % (df.num_rows))
@@ -75,7 +74,6 @@ class BaseProcessor(object):
         if hasattr(self.config, 'data_preprocessing'):
 
             data_preprocessing = getattr(self.config, 'data_preprocessing', None)
-            assert callable(data_preprocessing)
         try:
             df = data_preprocessing(df)
             logging.info("Use config.data_preprocessing to preprocess the dataset, got %d examples" % (df.num_rows))

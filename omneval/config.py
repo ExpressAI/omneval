@@ -12,7 +12,7 @@ def get_args():
                         help="Maximum length for input(include prompt template")
     parser.add_argument("--calibrate", action='store_true',
                         help='Whether to use calibration method')
-    parser.add_argument("--out_dir", type=str, default='results',
+    parser.add_argument("--out_dir", type=str, default='',
                         help="The directory for ")
     parser.add_argument("--meta_prefix", type=str, default='meta')
     parser.add_argument("--output_inference", action='store_true')
