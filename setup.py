@@ -5,8 +5,8 @@ REQUIRED_PKGS = [
     "allennlp>=2.8.0",
     "transformers>=4.15.0",
     "datasets>=1.14.0",
-    "eaas==0.1.9",
-    "tqdm==4.62.3"
+    "eaas>=0.1.9",
+    "tqdm>=4.62.3"
     ]
 
 
